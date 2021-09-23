@@ -72,7 +72,12 @@ for ii = 1:length(testdates)
     fprintf('%s ',letters{:});
     fprintf('\n\t\t')
     testletters{ii} = input('Tests to process : ', 's');
-    testletters{ii} = split(testletters{ii}, ' ');
+    if strcmp(testletters{ii}, 'all')
+        testletters{ii} = letters;
+    else
+        testletters{ii} = split(testletters{ii}, ' ');
+    end
+
     
     %choose test numbers
     for jj = 1:length(testletters{ii})
