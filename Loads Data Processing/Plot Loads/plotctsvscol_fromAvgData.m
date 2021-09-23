@@ -1,15 +1,24 @@
 clear CT_data CTerr CTup CTuperr CTlo CTloerr CP_data CPerr CPlo CPup CPloerr CPuperr col col_uni
 load('colors.mat')
 AvgData_corr = AvgData; 
+for i = 1:length(AvgData_corr.avg_cps_inner)
+    AvgData_corr.avg_cts_inner{i} = -AvgData_corr.avg_cts_inner{i};
+    AvgData_corr.avg_cts_total{i} = (AvgData_corr.avg_cts_inner{i}+ AvgData_corr.avg_cts_outer{i})./2;
+
+    AvgData_corr.avg_cps_inner{i} = -AvgData_corr.avg_cps_inner{i};
+    AvgData_corr.avg_cps_total{i} = (AvgData_corr.avg_cps_inner{i}+ AvgData_corr.avg_cps_outer{i})./2;
+end
 
 %% INPUTS
-RPM_des = 1200; 
-phi_des = 45; 
+RPM_des = 1250; 
+phi_des = 0; 
 diffcol_des = 0; 
 
-upcolor = colors{5};
-locolor = colors{3};
-totcolor = colors{1};
+c=4;
+upcolor = colors{c};
+locolor = colors{c};
+totcolor = colors{c};
+
 % for i = 1:7
 % plot([0,1],[i,i],'color',colors{i},'linewidth',4)
 % hold on
@@ -22,12 +31,13 @@ col = MeanData.meancols;
 RPMs = MeanData.RPMs;
 col_uni = unique(col);
 col_uni = col_uni(col_uni~=-4);
+% col_uni = [8,10,12];
 err = [AvgData_corr.err_cts_outer{:}]';
 
 %% GET DATA
 for i = 1:length(col_uni)
-    loc =(RPMs> RPM_des*.98)&(RPMs < RPM_des*1.02);
-    loc = (col_uni(i) == col)&loc & (phis == phi_des);% & (diffcols == diffcol_des);
+    loc =(RPMs> RPM_des*.96)&(RPMs < RPM_des*1.02);
+    loc = (col_uni(i) == col)&loc & (phis == phi_des) & (diffcols == diffcol_des);
     loc=loc&(err<0.001);
     
     CT_data(i) = mean([AvgData_corr.avg_cts_total{loc}]);
@@ -50,7 +60,7 @@ end
 
 %% PLOT
 % ************************** CT **************************
-figure(5)
+figure(1)
 hold on
 errorbar(col_uni,CTlo,CTloerr, 's','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1)
 hold on
@@ -100,6 +110,21 @@ grid on
 hold on
 ylim([-0.02,0.14])
 yticks([-0.02:0.02:0.14])
+
+% ************************** CT/CP **************************
+figure(4)
+hold on
+plot(col_uni,CTlo./CPlo, 's','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1)
+hold on
+plot(col_uni,CTup./CPup,'^','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1)
+plot(col_uni,CT_data./CP_data, 'o','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1)
+ylabel('C_T/ C_P')
+xlabel('Collective, \theta_0 [deg]')
+set(gca,'FontSize',18)
+% grid minor
+grid on
+hold on
+
 
 
 

@@ -41,7 +41,7 @@ warning off
 
 %% INPUTS
 
-directory = '/Users/chloe/Box/Chloe Lab Stuff/2019 Spring Stacked Rotor/1.5 chord';
+directory = '\Users\admin-local\Box\Chloe Lab Stuff\2019 Spring Stacked Rotor\1.75 chord';
 
 rotor = input('Rotor type [ Uber CCR ]: ', 's');
 

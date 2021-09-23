@@ -184,8 +184,13 @@ for im = 1:length(MeanData.names) % need to fix reading multiple mean files
     MeanData.data{im}.rho = rho*ones(height(MeanData.data{im}),1);
     
     ExVar = startsWith(MeanData.data{im}.Properties.VariableNames,'ExtraVar');
+    Var = startsWith(MeanData.data{im}.Properties.VariableNames,'Var');
     if sum(ExVar) > 0
         MeanData.data{im}.ExtraVar1 = [];
+    end
+    
+    if sum(Var) > 0
+        MeanData.data{im}.Var26 = [];
     end
         
     mdata = vertcat(mdata, MeanData.data{im});

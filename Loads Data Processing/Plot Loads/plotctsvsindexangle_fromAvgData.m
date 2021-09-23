@@ -2,10 +2,10 @@ clear CT_data CTerr CP_data CPerr CTlo CTloerr CPlo CPloerr CTup CTuperr CPup CP
 load('colors.mat')
 AvgData_corr = AvgData;
 for i = 1:length(AvgData_corr.avg_cps_inner)
-    AvgData_corr.avg_cts_inner{i} = AvgData_corr.avg_cts_inner{i};
+    AvgData_corr.avg_cts_inner{i} = -AvgData_corr.avg_cts_inner{i};
     AvgData_corr.avg_cts_total{i} = (AvgData_corr.avg_cts_inner{i}+ AvgData_corr.avg_cts_outer{i})./2;
 
-    AvgData_corr.avg_cps_inner{i} = AvgData_corr.avg_cps_inner{i};
+    AvgData_corr.avg_cps_inner{i} = -AvgData_corr.avg_cps_inner{i};
     AvgData_corr.avg_cps_total{i} = (AvgData_corr.avg_cps_inner{i}+ AvgData_corr.avg_cps_outer{i})./2;
 end
 

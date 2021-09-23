@@ -336,7 +336,7 @@ title(l,'\phi')
 %% PLOT VS PHI
 clear oaspl oasplA
 rpm_des = 1200; 
-coll_des = 12; 
+coll_des = 10; 
 diff_des = 0; 
 
 loc = (contains(testmat.name, '201118'))|(contains(testmat.name, '201119'));
@@ -345,20 +345,45 @@ plotdata = {data{loc}};
 for i = 1:length(plotdata)
     oaspl(i,1) = plotdata{i}(3).oaspl;
     oasplA(i,1) = plotdata{i}(3).oasplA;
+    tl(i,1) = plotdata{i}(3).dBtl;
+    bb(i,1) = plotdata{i}(3).dBbb;    
 end
+
+phi_plot = phis(loc);
+phi_uni = unique(phi_plot);
+for i = 1:length(phi_uni)
+    loc = phi_plot==phi_uni(i);
+    oaspls(i,1) = mean(oaspl(loc));
+    oasplAs(i,1) =mean(oasplA(loc));
+    bbs(i,1) = mean(bb(loc));
+    tls(i,1) = mean(tl(loc));
+end
+
 figure(7)
-hold on
-[a,b] = sort(phis(loc));
-l = plot(a,oaspl(b),'o-');
-l.MarkerFaceColor = l.Color;
-xlabel('Azimuthal Spacing, \phi')
-ylabel('OASPL, db')
+    hold on
+    [a,b] = sort(phi_uni);
+    l = plot(a,oaspls(b),'ko-');
+    l.MarkerFaceColor = l.Color;
+    
+    hold on
+    [a,b] = sort(phi_uni);
+    l = plot(a,tls(b),'o-','color',colors{1});
+    l.MarkerFaceColor = l.Color;
+    
+    hold on
+    [a,b] = sort(phi_uni);
+    l = plot(a,bbs(b),'o-','color',colors{2});
+    l.MarkerFaceColor = l.Color;
+
+    xlabel('Azimuthal Spacing, \phi')
+    ylabel('SPL, dB')
+    legend('Exp Total','Exp T+L','Exp Broadband')
 
 figure(8)
-hold on
-[a,b] = sort(phis(loc));
-l = plot(a,oasplA(b),'ko-');
-l.MarkerFaceColor = l.Color;
-xlabel('Azimuthal Spacing, \phi')
-ylabel('OASPLA, db')
+    hold on
+    [a,b] = sort(phis(loc));
+    l = plot(a,oasplA(b),'ko-');
+    l.MarkerFaceColor = l.Color;
+    xlabel('Azimuthal Spacing, \phi')
+    ylabel('OASPLA, db')
 

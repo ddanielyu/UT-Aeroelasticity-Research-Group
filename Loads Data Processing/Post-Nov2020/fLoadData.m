@@ -216,6 +216,7 @@ switch (rotor)
 %         MeanData.cols_in = round((mdata{:,'Pitch1Inner'} + mdata{:,'Pitch2Inner'})/2);
         % find nominal outer collective : round to closest integer 
 %         MeanData.cols_out = round((mdata{:,'Pitch1Outer'} + mdata{:,'Pitch1Outer'})/2);
+        MeanData.rhos = mdata{:,'rho'};
 end
 
 %% LOAD AND PROCESS STREAMING FILES
@@ -279,7 +280,7 @@ for k = 1:nfiles
         StreamData.Fz_inner{k} = StreamData.Fz_inner{k}*-1;
     end
     
-    StreamData.rho{k} = MeanData.rhos(k);
+    StreamData.rho{k} = MeanData.rhos(k); 
     
     %% CREATE REV COUNTER
     revnum = 0;

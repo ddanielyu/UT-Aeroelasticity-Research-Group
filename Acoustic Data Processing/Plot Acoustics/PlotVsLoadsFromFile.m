@@ -6,12 +6,12 @@ addpath('/Users/chloe/Box/Chloe Lab Stuff/2020 Fall Stacked Rotor/Results');
 load('acousticdata.mat')
 load('testmatrix.mat');
 load('zc0_loads.mat')
-load('zc15_loads.mat')
+% load('zc15_loads.mat')
 load('colors.mat')
 
 %% GET DATA
-% avg = loads.AvgData; 
-avg = AvgData;
+avg = loads.AvgData; 
+% avg = AvgData;
 loads_names = strrep(avg.names','-','_');
 loads_names = strrep(loads_names,'.csv','');
 diffs = testmat.diff;
@@ -20,34 +20,38 @@ colls = testmat.coll;
 rpms = testmat.rpm;
 
 %%
+savects = [];
 phi_plot = [28.1250   39.3750   45.0000   50.6250   67.5000   90.0000];
-phi_plot = [2];
+phi_plot = [39.3750   45.0000   50.6250   67.5000   90.0000];
+
 c = {'+-','o-','*-','.-','x-','s-','d-','^-'};
 cnt=0;
 for phi_des = phi_plot
 % INPUTS
 rpm_des = 1200; 
 % phi_des = 90; 
-diff_des = 0; 
+diff_des = 0;
+coll_des = 10;
 
-% loc = contains(testmat.name, '201118') | contains(testmat.name, '201119');
-loc = (rpms > rpm_des*.98) & (rpms < rpm_des*1.02) & (phis == phi_des) & (diffs == diff_des);
+loc = contains(testmat.name, '201118') | contains(testmat.name, '201119');
+loc = loc&(rpms > rpm_des*.98) & (rpms < rpm_des*1.02) & (phis == phi_des) & (diffs == diff_des)&(colls==coll_des);
 
 % PLOT W PEAKS
-clear oaspl oasplA cts tonal bb 
+clear oaspl oasplA cts tonal bb coll
 plot_ac = data(loc);
 for i = 1:length(plot_ac)
     oaspl(i) = plot_ac{i}(3).oaspl;
     oasplA(i) = plot_ac{i}(3).oasplA;
-    tonal(i) = plot_ac{i}(3).dBtl;
-    bb(i) = plot_ac{i}(3).dBbb;
-    
+%     tonal(i) = plot_ac{i}(3).dBtl;
+%     bb(i) = plot_ac{i}(3).dBbb;
+    coll(i) = testmat.coll(i);
     loc_loads = strcmp(plot_ac{i}(1).name, loads_names);
     cts(i) = avg.avg_cts_total(loc_loads);
 end
 [cts,b] = sort([cts{:}]);
 oaspl = oaspl(b);
 oasplA = oasplA(b);
+
 
 figure(1)
 hold on
@@ -58,14 +62,14 @@ figure(2)
 hold on
 plot(cts, oasplA,c{cnt})
 
-figure(3)
-hold on
-plot(cts, tonal,c{cnt})
-
-figure(4)
-hold on
-plot(cts, bb,c{cnt})
-
+% figure(3)
+% hold on
+% plot(cts, tonal,c{cnt})
+% 
+% figure(4)
+% hold on
+% plot(cts, bb,c{cnt})
+savects = [savects, cts];
 end
 
 figure(1)

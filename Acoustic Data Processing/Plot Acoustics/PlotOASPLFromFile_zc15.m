@@ -40,6 +40,10 @@ plotdata = {data{loc}};
 for i = 1:length(plotdata)
     oaspl(i,1) = plotdata{i}(3).oaspl;
     oasplA(i,1) = plotdata{i}(3).oasplA;
+    bb_test(i,1) = plotdata{i}(3).testbb;
+    tl_test(i,1) = plotdata{i}(3).testtl;
+    bb(i,1) = plotdata{i}(3).dBbb;
+    tl(i,1) = plotdata{i}(3).dBtl;
 end
 figure(1)
 hold on
@@ -335,6 +339,15 @@ for i = 1:length(plotdata)
     oasplA(i,1) = plotdata{i}(3).oasplA;
     bb(i,1) = plotdata{i}(3).dBbb;
     tl(i,1) = plotdata{i}(3).dBtl;
+    
+    oaspl_far(i,1) = plotdata{i}(3).dbfar;
+    bb_far(i,1) = plotdata{i}(3).dbfarbb;
+    tl_far(i,1) = plotdata{i}(3).dbfartl;
+    
+    oaspl_farA(i,1) = plotdata{i}(3).dbfarA;
+    bb_farA(i,1) = plotdata{i}(3).dbfarAbb;
+    tl_farA(i,1) = plotdata{i}(3).dbfarAtl;
+
 end
 
 phi_plot = phis(loc);
@@ -345,6 +358,14 @@ for i = 1:length(phi_uni)
     oasplAs(i,1) =mean(oasplA(loc));
     bbs(i,1) = mean(bb(loc));
     tls(i,1) = mean(tl(loc));
+    
+    oaspls_far(i,1) =mean(oaspl_far(loc));
+    bbs_far(i,1) = mean(bb_far(loc));
+    tls_far(i,1) = mean(tl_far(loc));
+    
+    oaspls_farA(i,1) =mean(oaspl_farA(loc));
+    bbs_farA(i,1) = mean(bb_farA(loc));
+    tls_farA(i,1) = mean(tl_farA(loc));
 end
 
 loc_90 = phi_uni==90;
@@ -353,38 +374,40 @@ oaspls = [oaspls; oaspls(loc_90)];
 oasplAs = [oasplAs; oasplAs(loc_90)];
 bbs = [bbs; bbs(loc_90)];
 tls = [tls; tls(loc_90)];
+oaspls_far = [oaspls_far; oaspls_far(loc_90)];
+bbs_far = [bbs_far; bbs_far(loc_90)];
+tls_far = [tls_far; tls_far(loc_90)];
+oaspls_farA = [oaspls_farA; oaspls_farA(loc_90)];
+bbs_farA = [bbs_farA; bbs_farA(loc_90)];
+tls_farA = [tls_farA; tls_farA(loc_90)];
 
 figure(7)
-hold on
-[a,b] = sort(phi_uni);
-l = plot(a,oaspls(b),'ko-');
-l.MarkerFaceColor = l.Color;
-xlabel('Azimuthal Spacing, \phi')
-ylabel('OASPL, db')
+    hold on
+    [a,b] = sort(phi_uni);
+    l = plot(a,oaspls(b),'ko--');
+    l.MarkerFaceColor = l.Color;
+    
+    hold on
+    [a,b] = sort(phi_uni);
+    l = plot(a,tls(b),'o--','color',colors{1});
+    l.MarkerFaceColor = l.Color;
+    
+    hold on
+    [a,b] = sort(phi_uni);
+    l = plot(a,bbs(b),'o--','color',colors{2});
+    l.MarkerFaceColor = l.Color;
+
+    xlabel('Azimuthal Spacing, \phi')
+    ylabel('SPL, dB')
+    legend('Exp Total','Exp T+L','Exp Broadband')
 
 figure(8)
-hold on
-[a,b] = sort(phi_uni);
-l = plot(a,oasplAs(b),'ko-');
-l.MarkerFaceColor = l.Color;
-xlabel('Azimuthal Spacing, \phi')
-ylabel('OASPLA, db')
-
-figure(7)
-hold on
-[a,b] = sort(phi_uni);
-l = plot(a,bbs(b),'o-');
-l.MarkerFaceColor = l.Color;
-xlabel('Azimuthal Spacing, \phi')
-ylabel('Broadband Noise, dB')
-
-figure(7)
-hold on
-[a,b] = sort(phi_uni);
-l = plot(a,tls(b),'ko-');
-l.MarkerFaceColor = l.Color;
-xlabel('Azimuthal Spacing, \phi')
-ylabel('Tonal + Loading Noise, dB')
+    hold on
+    [a,b] = sort(phi_uni);
+    l = plot(a,oasplAs(b),'ko-');
+    l.MarkerFaceColor = l.Color;
+    xlabel('Azimuthal Spacing, \phi')
+    ylabel('OASPLA, db')
 
 
 %% any

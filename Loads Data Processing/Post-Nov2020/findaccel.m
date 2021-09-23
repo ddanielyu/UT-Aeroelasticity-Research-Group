@@ -1,5 +1,5 @@
-RPM = 550; 
-k = 12;
+RPM = 840; 
+k = 5;
 
 prev = RPM/60; 
 
@@ -29,6 +29,18 @@ hold off
 xlabel('Freq [Hz]')
 
 a = sqrt(ax.^2 + ay.^2)
+
+figure(2)
+subplot(2,1,1)
+hold on
+plot(RevData.avg_ax{k},'.-')
+ylabel('a_x [g]')
+subplot(2,1,2)
+hold on
+plot(RevData.avg_ay{k},'.-')
+ylabel('a_y [g]')
+hold off
+xlabel('azimuth')
 
 
 % bandpass(RevData.avg_ax{k},[prev*0.8,prev*1.2],10000)

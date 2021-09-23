@@ -114,7 +114,7 @@ for k = 1:length(StreamData.names)
     end
     
     SortedData.azimuth{k} = linspace(0, 360*(1-1/Naz), Naz);
-    count = SortedData.binsize{k}(1)+1;  
+    count = SortedData.binsize{k}(1)+1;  % IF ERROR HERE, TRY MULTIPLYING ENCODER COLUMN IN STREAMDATA BY -1
     for n = 2:StreamData.nrevs{k} %cut out first rev
         b = SortedData.binsize{k}(n);
         

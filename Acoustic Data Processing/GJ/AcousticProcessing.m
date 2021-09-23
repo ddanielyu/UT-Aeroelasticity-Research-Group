@@ -37,6 +37,7 @@ clear all;
 
 %% INPUTS
 directory = '\Users\admin-local\Box\Chloe Lab Stuff\2021 Spring Stacked Rotor\Acoustics\zc_15';
+directory = '\Users\admin-local\Box\Chloe Lab Stuff\2020 Fall Stacked Rotor\Acoustic Tests';
 
 addpath(pwd)
 inputs.doubling = 'y';
@@ -128,6 +129,8 @@ data{i}(micnum).db = [testdata{j}(micnum).dbdata_filt];
 data{i}(micnum).dbA = [testdata{j}(micnum).dbAdata_filt];
 data{i}(micnum).oaspl = [testdata{j}(micnum).oaspl];
 data{i}(micnum).oasplA = [testdata{j}(micnum).oasplA];
+data{i}(micnum).oasplAbb = [testdata{j}(micnum).oasplAbb];
+data{i}(micnum).oasplAtl = [testdata{j}(micnum).oasplAtl];
 data{i}(micnum).dBbb = [testdata{j}(micnum).oasplbb];
 data{i}(micnum).dBtl = [testdata{j}(micnum).oaspltl];
 data{i}(micnum).dbfar = [testdata{j}(micnum).oasplfar];
@@ -136,5 +139,7 @@ data{i}(micnum).dbfartl = [testdata{j}(micnum).oasplfartl];
 data{i}(micnum).dbfarA = [testdata{j}(micnum).oasplfarA];
 data{i}(micnum).dbfarAbb = [testdata{j}(micnum).oasplfarAbb];
 data{i}(micnum).dbfarAtl = [testdata{j}(micnum).oasplfarAtl];
+% data{i}(micnum).testbb = [testdata{j}(micnum).oaspl_tonal];
+% data{i}(micnum).testtl = [testdata{j}(micnum).oaspl_bb];
 end
 end

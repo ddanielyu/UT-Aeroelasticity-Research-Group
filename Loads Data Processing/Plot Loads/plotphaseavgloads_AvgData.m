@@ -1,17 +1,17 @@
 %plot phase avg loads
 load('colors.mat')
-i = 3;
+i = 5;
 
 figure('Position', [10 10 600 600])
 subplot(3,1,1)
-plot_confidenceint(SortedData.azimuth{i}, RevData.avg_Fx_outer{i}, RevData.err_Fx_outer{i}, colors{1})
+plot_confidenceint(SortedData.azimuth{i}, RevData.avg_Fx_inner{i}-RevData.avg_Fx_inner{1}, RevData.err_Fx_outer{i}, colors{1})
 ylabel('F_x [N]')
 xlabel('Azimuth [deg]')
 xlim([0,360])
 grid on
 
 subplot(3,1,2)
-plot_confidenceint(SortedData.azimuth{i}, RevData.avg_Fy_outer{i}, RevData.err_Fy_outer{i}, colors{1})
+plot_confidenceint(SortedData.azimuth{i}, RevData.avg_Fy_inner{i}-RevData.avg_Fy_inner{1}, RevData.err_Fy_outer{i}, colors{1})
 ylabel('F_y [N]')
 xlabel('Azimuth [deg]')
 xlim([0,360])

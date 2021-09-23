@@ -41,8 +41,9 @@ warning off
 
 %% INPUTS
 
+directory = '\Users\admin-local\Box\Chloe Lab Stuff\2020 Fall Stacked Rotor\Outdoor';
 directory = '\Users\admin-local\Desktop\Research\02 Data\Streaming';
-directory = '/Users/chloe/Box/Chloe Lab Stuff/2021 Spring Stacked Rotor/Outdoor';
+
 rotor = input('Rotor type [ Uber CCR ]: ', 's');
 
 conditions = [54	29.88]; % [T(Farenh), % humidity, P(in.Hg)]

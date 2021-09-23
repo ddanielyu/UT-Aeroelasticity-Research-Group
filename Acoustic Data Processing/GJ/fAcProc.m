@@ -160,7 +160,7 @@ for k = 1:length(testprefix)
     testdata{k}.name = extractBefore(testprefix{k},' -');  
     testnames{k} = extractBefore(testprefix{k},' -');  
     fprintf('\n%s\n',['Processing Data. Data file: ', testdata{k}.name])
-%     fprintf('\t%s\n',['      SPL    SPLtl   SPLbb   SPLfar    SPLfartl  SPLfarbb  SPLfarA    SPLfarAtl  SPLfarAbb'])
+%     fprintf('%s\n',['      SPL    SPLtl   SPLbb   SPLfar    SPLfartl  SPLfarbb  SPLfarA    SPLfarAtl  SPLfarAbb'])
     for micnum = 1:16
         fname = [testprefix{k} num2str(micnum) '.wav'];
         if isfile(fname)
@@ -173,8 +173,8 @@ for k = 1:length(testprefix)
             N = length(x);
 % process data          
             % tvec
-            testdata{k}(micnum).tvec = 0: 1/fs: (length(x)-1)/fs;
-            t = testdata{k}(micnum).tvec;
+            t = 0: 1/fs: (length(x)-1)/fs;
+%             t = testdata{k}(micnum).tvec;
             
             % fft
             [f, mag, ~] = ffind_spectrum(fs, x, N, 1);
@@ -189,13 +189,32 @@ for k = 1:length(testprefix)
             
             % convert to pressure
                 % freq domain
-%             testdata{k}(micnum).Pdata = mag * caldata{k}(micnum).calfactor * doubling_factor; 
+            P = mag * caldata{k}(micnum).calfactor * doubling_factor; 
             testdata{k}(micnum).Pdata_filt = mag_filt * caldata{k}(micnum).calfactor * doubling_factor;
 %             P = testdata{k}(micnum).Pdata;
             P_filt = testdata{k}(micnum).Pdata_filt;            
                 % time domain
             testdata{k}(micnum).Pdata_t = x * caldata{k}(micnum).calfactor * doubling_factor;
-            P_t =testdata{k}(micnum).Pdata_t; 
+            P_t = testdata{k}(micnum).Pdata_t;
+            
+            % phase averaging 
+%             encname = [testprefix{k} num2str(24) '.wav'];
+%             enc = audioread(encname);
+%             if max(enc) > 1e-3
+%                 [testdata{k}(micnum).P_sort, P_tonal, P_bb, fs_new] = fPhaseAvg(P_t, enc);
+%                 N = length(P_tonal);
+%                 % freq domain
+%                 [testdata{k}(micnum).fvec_tonal, P_spectra_tonal, ~] = ffind_spectrum(fs_new, P_tonal, N,1);
+%                 [testdata{k}(micnum).fvec_bb, P_spectra_bb, ~] = ffind_spectrum(fs_new,P_bb, 2*N/N_avg, N_avg, window);
+%                  % db
+%                 Pref = 20E-6; %[Pa]
+%                 testdata{k}(micnum).db_tonal = 20*log10(P_spectra_tonal / Pref);
+%                 testdata{k}(micnum).db_bb = 20*log10(P_spectra_bb / Pref);
+%                 % oaspl
+%                 testdata{k}(micnum).oaspl_tonal = fOverallSPL_freq(P_spectra_tonal);
+%                 testdata{k}(micnum).oaspl_bb = fOverallSPL_freq(P_spectra_bb);   
+%             end
+            
             
             % octave filtering
                 % 1/12
@@ -211,8 +230,8 @@ for k = 1:length(testprefix)
             %testdata{k}(micnum).ofilt3_dbdata = 20*log10(testdata{k}(micnum).ofilt3_Pdata / Pref);
             
             % filter spectrum
-            % use values bpf = 80 Hz, df = 1Hz, npeaks = 28, 2% to 5%
-            [pmsbb,pmstl] = remove_peaks(80,1,28,P_filt.^2,.02,.05);
+            % remove_peaks(bpf in Hz, df in Hz, npeaks, pressure^2, inner%, outer%)
+            [pmsbb,pmstl] = remove_peaks(40,1,35,P_filt.^2,15,25);
             testdata{k}(micnum).dBbb = 10*log10(pmsbb/Pref^2);
             testdata{k}(micnum).dBtl = 10*log10(pmstl/Pref^2);
             
@@ -223,19 +242,23 @@ for k = 1:length(testprefix)
             
             
             % A-weighting
-%             A = fAfilt(testdata{k}(micnum).fvec);
+%             A = fAfilt(f);
 %             testdata{k}(micnum).dbAdata = testdata{k}(micnum).dbdata + A';
             A_filt = fAfilt(testdata{k}(micnum).fvec_filt);
             testdata{k}(micnum).dbAdata_filt = testdata{k}(micnum).dbdata_filt + A_filt';
+            testdata{k}(micnum).dBAbb = testdata{k}(micnum).dBbb+ A_filt';
+            testdata{k}(micnum).dBAtl = testdata{k}(micnum).dBtl+ A_filt';
             testdata{k}(micnum).dBfarA = testdata{k}(micnum).dBfar+ A_filt';
             testdata{k}(micnum).dBfarAbb = testdata{k}(micnum).dBfarbb+ A_filt';
             testdata{k}(micnum).dBfarAtl = testdata{k}(micnum).dBfartl+ A_filt';
             
             % OASPL
-            testdata{k}(micnum).oaspl = fOverallSPL_time(testdata{k}(micnum).Pdata_t, testdata{k}(micnum).tvec);
+            testdata{k}(micnum).oaspl = fOverallSPL_time(testdata{k}(micnum).Pdata_t, t);
             testdata{k}(micnum).oasplA = fOverallSPL_freq(Pref * 10.^(testdata{k}(micnum).dbAdata_filt / 20));
             testdata{k}(micnum).oasplbb = fOverallSPL_freq(sqrt(pmsbb));
             testdata{k}(micnum).oaspltl = fOverallSPL_freq(sqrt(pmstl));
+            testdata{k}(micnum).oasplAbb = fOverallSPL_freq(Pref * 10.^(testdata{k}(micnum).dBAbb / 20));
+            testdata{k}(micnum).oasplAtl = fOverallSPL_freq(Pref * 10.^(testdata{k}(micnum).dBAtl / 20));
             testdata{k}(micnum).oasplfar = fOverallSPL_freq(Pref * 10.^(testdata{k}(micnum).dBfar / 20));
             testdata{k}(micnum).oasplfarbb = fOverallSPL_freq(Pref * 10.^(testdata{k}(micnum).dBfarbb / 20));
             testdata{k}(micnum).oasplfartl = fOverallSPL_freq(Pref * 10.^(testdata{k}(micnum).dBfartl / 20));
@@ -243,23 +266,7 @@ for k = 1:length(testprefix)
             testdata{k}(micnum).oasplfarAbb = fOverallSPL_freq(Pref * 10.^(testdata{k}(micnum).dBfarAbb / 20));
             testdata{k}(micnum).oasplfarAtl = fOverallSPL_freq(Pref * 10.^(testdata{k}(micnum).dBfarAtl / 20));
     
-            % phase averaging 
-            encname = [testprefix{k} num2str(24) '.wav'];
-            enc = audioread(encname);
-            if max(enc) > 1e-3
-                [testdata{k}(micnum).P_sort,P_tonal,P_bb, fs_new] = fPhaseAvg(P_t, enc);
-%                 N = length(testdata{k}(micnum).P_tonal);
-                % freq domain
-%                 [testdata{k}(micnum).fvec_tonal, P_spectra_tonal, ~] = ffind_spectrum(fs_new, testdata{k}(micnum).P_tonal, N,1);
-%                 [testdata{k}(micnum).fvec_bb, P_spectra_bb, ~] = ffind_spectrum(fs_new, testdata{k}(micnum).P_bb, 2*N/N_avg, N_avg, window);
-%                 % db
-%                 Pref = 20E-6; %[Pa]
-%                 testdata{k}(micnum).db_tonal = 20*log10(P_spectra_tonal / Pref);
-%                 testdata{k}(micnum).db_bb = 20*log10(P_spectra_bb / Pref);
-%                 % oaspl
-%                 testdata{k}(micnum).oaspl_tonal = fOverallSPL_freq(P_spectra_tonal);
-%                 testdata{k}(micnum).oaspl_bb = fOverallSPL_freq(P_spectra_bb);   
-            end
+            
             
 %             fprintf('%7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f \n',testdata{k}(micnum).oaspl,testdata{k}(micnum).oaspltl,testdata{k}(micnum).oasplbb,testdata{k}(micnum).oasplfar,testdata{k}(micnum).oasplfartl, testdata{k}(micnum).oasplfarbb,testdata{k}(micnum).oasplfarA,testdata{k}(micnum).oasplfarAtl, testdata{k}(micnum).oasplfarAbb)
         end
