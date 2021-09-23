@@ -9,7 +9,17 @@ for i = 1:length(AvgData_corr.avg_cps_inner)
     AvgData_corr.avg_cps_total{i} = (AvgData_corr.avg_cps_inner{i}+ AvgData_corr.avg_cps_outer{i})./2;
 end
 
+for i = 1:length(AvgData_corr.avg_cps_inner)
+    AvgData_corr.avg_cts_inner{i} = AvgData_corr.avg_cts_inner{i};
+    AvgData_corr.avg_cts_total{i} = (AvgData_corr.avg_cts_inner{i}+ AvgData_corr.avg_cts_outer{i})./2;
+ 
+    AvgData_corr.avg_cps_inner{i} = AvgData_corr.avg_cps_inner{i};
+    AvgData_corr.avg_cps_total{i} = (AvgData_corr.avg_cps_inner{i}+ AvgData_corr.avg_cps_outer{i})./2;
+end
+
+
 %% INPUTS
+<<<<<<< Updated upstream
 RPM_des = 1250; 
 phi_des = 0; 
 diffcol_des = 0; 
@@ -19,6 +29,16 @@ upcolor = colors{c};
 locolor = colors{c};
 totcolor = colors{c};
 
+=======
+RPM_des = 1200; 
+phi_des = 90; 
+diffcol_des = 0; 
+
+fontsize = 20;
+upcolor = colors{5};
+locolor = colors{3};
+totcolor = colors{1};
+>>>>>>> Stashed changes
 % for i = 1:7
 % plot([0,1],[i,i],'color',colors{i},'linewidth',4)
 % hold on
@@ -31,14 +51,24 @@ col = MeanData.meancols;
 RPMs = MeanData.RPMs;
 col_uni = unique(col);
 col_uni = col_uni(col_uni~=-4);
+<<<<<<< Updated upstream
 % col_uni = [8,10,12];
+=======
+col_uni = col_uni(col_uni~=12);
+>>>>>>> Stashed changes
 err = [AvgData_corr.err_cts_outer{:}]';
 
 %% GET DATA
 for i = 1:length(col_uni)
+<<<<<<< Updated upstream
     loc =(RPMs> RPM_des*.96)&(RPMs < RPM_des*1.02);
     loc = (col_uni(i) == col)&loc & (phis == phi_des) & (diffcols == diffcol_des);
     loc=loc&(err<0.001);
+=======
+    loc =(RPMs> RPM_des*.98)&(RPMs < RPM_des*1.02);
+    loc = (col_uni(i) == col)&loc & (phis == phi_des);% & (diffcols == diffcol_des);
+%     loc=loc&(err<0.001);
+>>>>>>> Stashed changes
     
     CT_data(i) = mean([AvgData_corr.avg_cts_total{loc}]);
     CTerr(i) = sumsquares([AvgData_corr.err_cts_total{loc}]);
@@ -65,10 +95,10 @@ hold on
 errorbar(col_uni,CTlo,CTloerr, 's','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1)
 hold on
 errorbar(col_uni,CTup,CTuperr,'^','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1)
-errorbar(col_uni,CT_data,CTerr,'o','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1)
+errorbar(col_uni,CT_data,CTerr,'.-','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1,'MarkerSize',10)
 xlabel('Collective, \theta_0 [deg]')
 ylabel('C_T/ \sigma')
-set(gca,'FontSize',18)
+set(gca,'FontSize',fontsize)
 % grid minor
 grid on
 hold on

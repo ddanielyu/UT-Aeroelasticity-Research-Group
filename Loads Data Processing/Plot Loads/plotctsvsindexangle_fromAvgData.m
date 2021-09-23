@@ -1,4 +1,4 @@
-clear CT_data CTerr CP_data CPerr CTlo CTloerr CPlo CPloerr CTup CTuperr CPup CPuperr ctcp ctcperr col col_uni phis_uni
+clear CT_data CTerr CP_data CPerr CTlo CTloerr CPlo CPloerr CTup CTuperr CPup CPuperr CTCP ctcperr col col_uni phis_uni
 load('colors.mat')
 AvgData_corr = AvgData;
 for i = 1:length(AvgData_corr.avg_cps_inner)
@@ -18,8 +18,11 @@ locolor = colors{3};
 totcolor = colors{1};
 
 % 4-BLADED ROTOR
-% CT_90 = 0.0830;
-% CP_90 = 0.0084;
+% CT_90 = 0.0808;     %8 deg
+% CP_90 = 0.008146;   %8 deg
+CT_90 = 0.1026;     %10 deg
+CP_90 = 0.0113;     %10 deg
+
 
 %% GET CONSTANTS
 diffcols = MeanData.diffcols;
@@ -53,6 +56,7 @@ CTuperr=[];
 CPuperr=[];
 CTerr=[];
 CPerr=[];
+CTCP=[];
 ctcperr=[];
 phis_plot=[];
 
@@ -70,6 +74,7 @@ for i = 1:length(phis_uni)
         CPlo = [CPlo, mean([AvgData_corr.avg_cps_inner{loc}])];
         CTup = [CTup, mean([AvgData_corr.avg_cts_outer{loc}])];
         CPup = [CPup, mean([AvgData_corr.avg_cps_outer{loc}])];
+        CTCP = [CTCP, mean([AvgData_corr.avg_ctcp{loc}])];
         if sum(loc)<4
             CTerr = [CTerr, sumsquares([AvgData_corr.err_cts_total{loc}])];
             CPerr = [CPerr, sumsquares([AvgData_corr.err_cps_total{loc}])];
@@ -77,6 +82,7 @@ for i = 1:length(phis_uni)
             CPloerr = [CPloerr, sumsquares([AvgData_corr.err_cps_inner{loc}])];
             CTuperr = [CTuperr, sumsquares([AvgData_corr.err_cts_outer{loc}])];
             CPuperr = [CPuperr, sumsquares([AvgData_corr.err_cps_outer{loc}])];
+%             ctcperr = [ctcperr, sumsquares([AvgData_corr.err_ctcp{loc}])];
         else
             Nrevs = mean([SortedData.nrevs{loc}]);
             CTerr = [CTerr,1.96* std([AvgData_corr.avg_cts_total{loc}])/sum(loc)];
@@ -85,10 +91,11 @@ for i = 1:length(phis_uni)
             CPloerr = [CPloerr,1.96* std([AvgData_corr.avg_cps_inner{loc}])/sum(loc)];
             CTuperr = [CTuperr,1.96* std([AvgData_corr.avg_cts_outer{loc}])/sum(loc)];
             CPuperr = [CPuperr,1.96* std([AvgData_corr.avg_cps_outer{loc}])/sum(loc)];
+%             ctcperr = [ctcperr,1.96* std([AvgData_corr.avg_ctcp{loc}])/sum(loc)];
         end
         
 %         loc = (col == col_des) & (phis_uni(i) == phis) & ([AvgData_corr.err_ctcp{:}]'<0.25);
-        ctcperr = [ctcperr,sumsquares([AvgData_corr.err_ctcp{loc}])];
+% ctcperr = [ctcperr, sumsquares([AvgData_corr.err_ctcp{loc}])];
     end
 end
 % phis_plot = [phis_plot, -phis_plot];
@@ -140,7 +147,8 @@ if (true)
         CPup(end+1) = CPup(loc);
         CPuperr(end+1) = CPuperr(loc);
         
-        ctcperr(end+1) = ctcperr(loc);
+        CTCP(end+1) = CTCP(loc);
+%         ctcperr(end+1) = ctcperr(loc);
     end
 end
 [phis_plot,loc] = sort(phis_uni);
@@ -156,7 +164,8 @@ CTup = CTup(loc);
 CTuperr = CTuperr(loc);
 CPup = CPup(loc);
 CPuperr = CPuperr(loc);
-ctcperr = ctcperr(loc);
+CTCP = CTCP(loc);
+% ctcperr = ctcperr(loc);
 
 
 
@@ -226,85 +235,74 @@ if seperate
     legend('CFD','VVPM','Exp','location',[.88 .88 .1 .1])
     %%
 else
+    %%%%%%%%%%%CT%%%%%%%%%%%%
     % LOWER
     figure(1)
+    plot([-95,95],[CT_90,CT_90], '-','color',[0 0 0], 'linewidth',.7)
     hold on
-    errorbar(phis_plot,CTlo,CTloerr, 's','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1)
-    % plot([-95,95],[CT_90,CT_90], '--','color',[0 0 0]+0.7, 'linewidth',1.2)
-    
+    errorbar(phis_plot,CTlo,CTloerr, '.--','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1,'Markersize',10)
     % UPPER
     hold on
-    errorbar(phis_plot,CTup,CTuperr,'^','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1)
-    % plot([-95,95],[CT_90,CT_90], '--','color',[0 0 0]+0.7, 'linewidth',1.2)
-    
+    errorbar(phis_plot,CTup,CTuperr,'.:','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1,'Markersize',10)
     % TOTAL
     hold on
-    errorbar(phis_plot,CT_data,CTerr, 'o','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1)
-    % plot([-95,95],[CT_90,CT_90], '--','color',[0 0 0]+0.7, 'linewidth',1.2)
+    errorbar(phis_plot,CT_data,CTerr, '.-','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1,'Markersize',10)
     xlabel('Index Angle, deg')
     ylabel('C_T/ \sigma')
-    set(gca,'FontSize',18)
+    set(gca,'FontSize',20)
     grid on
     hold on
-    xlim([-95 95])
+    xlim([-90 90])
     xticks([-90:15:90])
     ylim([0.04, 0.14])
-    %     yticks([0.05:0.02:0.17])
-    legend('Lower', 'Upper','Total', 'location', 'northwest')
+    %   yticks([0.05:0.02:0.17])
+    legend('4-Bladed','Lower', 'Upper','Total', 'location', 'northwest')
     
-    %%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%CP%%%%%%%%%%%%
     % LOWER
     figure(2)
+    plot([-95,95],[CP_90,CP_90], '-','color',[0 0 0], 'linewidth',.7)
     hold on
-    errorbar(phis_plot,CPlo,CPloerr, 's','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1)
-    % plot([-95,95],[CT_90,CT_90], '--','color',[0 0 0]+0.7, 'linewidth',1.2)
-    
+    errorbar(phis_plot,CPlo,CPloerr, '.--','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1,'Markersize',10)
     % UPPER
     hold on
-    errorbar(phis_plot,CPup,CPuperr,'^','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1)
-    % plot([-95,95],[CT_90,CT_90], '--','color',[0 0 0]+0.7, 'linewidth',1.2)
-    
+    errorbar(phis_plot,CPup,CPuperr,'.:','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1,'Markersize',10)
     % TOTAL
     hold on
-    errorbar(phis_plot,CP_data,CPerr, 'o','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1)
-    % plot([-95,95],[CT_90,CT_90], '--','color',[0 0 0]+0.7, 'linewidth',1.2)
+    errorbar(phis_plot,CP_data,CPerr, '.-','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1,'Markersize',10)
     xlabel('Index Angle, deg')
     ylabel('C_P/ \sigma')
-    set(gca,'FontSize',18)
+    set(gca,'FontSize',20)
     grid on
     hold on
-    xlim([-95 95])
+    xlim([-90 90])
     xticks([-90:15:90])
-    %     ylim([0.05, 0.17])
-    %     yticks([0.05:0.02:0.17])
-    legend('Lower', 'Upper','Total', 'location', 'northwest')
+    ylim([0.004, 0.014])
+    yticks([0.005:0.002:0.017])
+    legend('4-Bladed','Lower', 'Upper','Total', 'location', 'northwest')
     
-    %%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%CT/CP%%%%%%%%%%%%%
     % LOWER
     figure(3)
+    plot([-95,95],[CT_90/CP_90,CT_90/CP_90], '-','color',[0 0 0], 'linewidth',.7)
     hold on
-    plot(phis_plot,CTlo./CPlo, '-s','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1)
-    % plot([-95,95],[CT_90,CT_90], '--','color',[0 0 0]+0.7, 'linewidth',1.2)
-    
+%     plot(phis_plot,CTlo./CPlo, '.--','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1,'Markersize',10)
     % UPPER
     hold on
-    plot(phis_plot,CTup./CPup,'-^','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1)
-    % plot([-95,95],[CT_90,CT_90], '--','color',[0 0 0]+0.7, 'linewidth',1.2)
-    
+%     plot(phis_plot,CTup./CPup,'.:','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1,'Markersize',10)
     % TOTAL
     hold on
-    plot(phis_plot,CT_data./CP_data, '-o','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1)
-    % plot([-95,95],[CT_90,CT_90], '--','color',[0 0 0]+0.7, 'linewidth',1.2)
+    plot(phis_plot,CT_data./CP_data, '.-','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1,'Markersize',10)
     xlabel('Index Angle, deg')
     ylabel('C_T/C_P')
-    set(gca,'FontSize',18)
+    set(gca,'FontSize',20)
     grid on
     hold on
-    xlim([-95 95])
+    xlim([-90 90])
     xticks([-90:15:90])
     ylim([5, 15])
     yticks([5:2:15])
-    legend('Lower', 'Upper','Total', 'location', 'northwest')
+    legend('4-Bladed','Lower', 'Upper','Total', 'location', 'northwest')
 end
 
 %%

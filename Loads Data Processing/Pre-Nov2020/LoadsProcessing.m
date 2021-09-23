@@ -41,7 +41,11 @@ warning off
 
 %% INPUTS
 
+<<<<<<< Updated upstream
 directory = '\Users\admin-local\Box\Chloe Lab Stuff\2019 Spring Stacked Rotor\1.75 chord';
+=======
+directory = '/Users/chloe/Box/Chloe Lab Stuff/2019 Spring Stacked Rotor/0.73 chord';
+>>>>>>> Stashed changes
 
 rotor = input('Rotor type [ Uber CCR ]: ', 's');
 
