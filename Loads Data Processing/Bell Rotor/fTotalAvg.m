@@ -45,6 +45,11 @@ for k = 1:length(StreamData.names)
     AvgData.avg_FM_tot{k} = nanmean(RevData.avg_FM_tot{k});
     AvgData.avg_ctcp{k} = nanmean(RevData.avg_ctcp{k});
     
+    AvgData.avg_Fz_outer{k} = nanmean(RevData.avg_Fz_outer{k});
+    AvgData.avg_Mz_outer{k} = nanmean(RevData.avg_Mz_outer{k});
+    AvgData.avg_Fz_inner{k} = nanmean(RevData.avg_Fz_inner{k});
+    AvgData.avg_Mz_inner{k} = nanmean(RevData.avg_Mz_inner{k});
+    
     cts_bias = 8 / ct_den / StreamData.sigma;
     cps_bias = 0.48 / cq_den / StreamData.sigma;
     
@@ -59,6 +64,15 @@ for k = 1:length(StreamData.names)
         / sqrt(SortedData.nrevs{k});
     AvgData.err_cps_inner{k} = 1.96* sqrt( std(RevData.ms_cps_inner{k})^2 + cps_bias^2 )...
         / sqrt(SortedData.nrevs{k});
+    
+    AvgData.err_Fz_outer{k} = 1.96* sqrt( std(RevData.ms_Fz_outer{k})^2 + 8^2 )...
+        / sqrt(SortedData.nrevs{k});
+    AvgData.err_Mz_outer{k} = 1.96* sqrt( std(RevData.ms_Mz_outer{k})^2 + 0.48^2 )...
+        / sqrt(SortedData.nrevs{k});
+    AvgData.err_Fz_inner{k} = 1.96* sqrt( std(RevData.ms_Fz_inner{k})^2 + 8^2 )...
+        / sqrt(SortedData.nrevs{k});
+    AvgData.err_Mz_inner{k} = 1.96* sqrt( std(RevData.ms_Mz_inner{k})^2 + 0.48^2 )...
+        / sqrt(SortedData.nrevs{k});
 
     AvgData.err_FM_outer{k} = 1.96* std(RevData.ms_FM_outer{k})/sqrt(SortedData.nrevs{k});
     AvgData.err_FM_inner{k} = 1.96* std(RevData.ms_FM_inner{k})/sqrt(SortedData.nrevs{k});
@@ -68,6 +82,8 @@ for k = 1:length(StreamData.names)
  
     AvgData.avg_cts_total{k} = (AvgData.avg_cts_inner{k} + AvgData.avg_cts_outer{k})/2;
     AvgData.avg_cps_total{k} = (AvgData.avg_cps_inner{k} + AvgData.avg_cps_outer{k})/2;
+    AvgData.avg_Fz_total{k} = (AvgData.avg_Fz_inner{k} + AvgData.avg_Fz_outer{k})/2;
+    AvgData.avg_Mz_total{k} = (AvgData.avg_Mz_inner{k} + AvgData.avg_Mz_outer{k})/2;
        
     AvgData.err_cts_total{k} = 1.96* sqrt( std(RevData.ms_cts_outer{k}+RevData.ms_cts_inner{k})^2 ...
     + (2*cts_bias)^2 ) / sqrt(SortedData.nrevs{k}); 
@@ -75,6 +91,12 @@ for k = 1:length(StreamData.names)
     AvgData.err_cps_total{k} = 1.96* sqrt( std(RevData.ms_cps_outer{k}+RevData.ms_cps_inner{k})^2 ...
     + (2*cps_bias)^2 ) / sqrt(SortedData.nrevs{k}); 
     
+    AvgData.err_Fz_total{k} = 1.96* sqrt( std(RevData.ms_Fz_outer{k}+RevData.ms_Fz_inner{k})^2 ...
+    + (2*cts_bias)^2 ) / sqrt(SortedData.nrevs{k}); 
+    
+    AvgData.err_Mz_total{k} = 1.96* sqrt( std(RevData.ms_Mz_outer{k}+RevData.ms_Mz_inner{k})^2 ...
+    + (2*cps_bias)^2 ) / sqrt(SortedData.nrevs{k});
+
     fprintf('%s\n', ' Ok');
 end
 

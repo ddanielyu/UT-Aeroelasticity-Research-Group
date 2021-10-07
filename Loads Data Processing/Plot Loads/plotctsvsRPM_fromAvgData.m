@@ -1,11 +1,14 @@
-clear CT_data CTerr CTup CTuperr CTlo CTloerr CP_data CPerr CPlo CPup CPloerr CPuperr col col_uni RPMs RPMs_uni
+clear CT_data CTerr CTup CTuperr CTlo CTloerr CP_data CPerr CPlo CPup CPloerr CPuperr col col_uni RPMs RPMs_uni Fz_data Fzerr Fzup Fzuperr Fzlo Fzloerr
 load('colors.mat')
 AvgData_corr = AvgData; 
 for i = 1:length(AvgData_corr.avg_cps_inner)
     AvgData_corr.avg_cts_inner{i} = -AvgData_corr.avg_cts_inner{i};
     AvgData_corr.avg_cts_total{i} = (AvgData_corr.avg_cts_inner{i}+ AvgData_corr.avg_cts_outer{i})./2;
-
-    AvgData_corr.avg_cps_inner{i} = -AvgData_corr.avg_cps_inner{i};
+    
+    AvgData_corr.avg_Fz_inner{i} = -AvgData_corr.avg_Fz_inner{i};
+    AvgData_corr.avg_Fz_total{i} = (AvgData_corr.avg_Fz_inner{i}+ AvgData_corr.avg_Fz_outer{i})./2;
+    
+    AvgData_corr.avg_cps_outer{i} = -AvgData_corr.avg_cps_outer{i};
     AvgData_corr.avg_cps_total{i} = (AvgData_corr.avg_cps_inner{i}+ AvgData_corr.avg_cps_outer{i})./2;
 end
 
@@ -14,7 +17,7 @@ phi_des = 90;
 diffcol_des = 0; 
 
 c=4;
-upcolor = colors{3};
+upcolor = colors{1};
 locolor = colors{5};
 totcolor = colors{1};
 
@@ -30,8 +33,7 @@ col = MeanData.meancols;
 RPMs = MeanData.RPMs;
 RPMs_uni = unique(RPMs);
 col_uni = unique(col);
-% col_uni = col_uni(col_uni~=-4);
-% col_uni = [8,10,12];
+RPMs_uni = RPMs_uni(RPMs_uni > 70);
 err = [AvgData_corr.err_cts_outer{:}]';
 
 %% GET DATA
@@ -55,6 +57,12 @@ for i = 1:length(RPMs_uni)
     CPup(i) = mean([AvgData_corr.avg_cps_outer{loc}]);
     CPuperr(i) = sumsquares([AvgData_corr.err_cps_outer{loc}]);
     
+    Fz_data(i) = mean([AvgData_corr.avg_Fz_total{loc}]);
+    Fzerr(i) = sumsquares([AvgData_corr.err_Fz_total{loc}]);
+    Fzlo(i) = mean([AvgData_corr.avg_Fz_inner{loc}]);
+    Fzloerr(i) = sumsquares([AvgData_corr.err_Fz_inner{loc}]);
+    Fzup(i) = mean([AvgData_corr.avg_Fz_outer{loc}]);
+    Fzuperr(i) = sumsquares([AvgData_corr.err_Fz_outer{loc}]);
     
 end
 
@@ -104,22 +112,36 @@ set(gca,'FontSize',18)
 % grid minor
 grid on
 hold on
-ylim([-0.02,0.14])
-yticks([-0.02:0.02:0.14])
 
 % ************************** CT/CP **************************
 figure(4)
 hold on
-plot(col_uni,CTlo./CPlo, 's','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1)
+plot(RPMs_uni,CTlo./CPlo, 's','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1)
 hold on
-plot(col_uni,CTup./CPup,'^','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1)
-plot(col_uni,CT_data./CP_data, 'o','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1)
+plot(RPMs_uni,CTup./CPup,'^','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1)
+plot(RPMs_uni,CT_data./CP_data, 'o','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1)
 ylabel('C_T/ C_P')
-xlabel('Collective, \theta_0 [deg]')
+xlabel('Rotor Speed [RPM]')
 set(gca,'FontSize',18)
 % grid minor
 grid on
 hold on
+
+% ************************** Fz **************************
+figure(5)
+hold on
+errorbar(RPMs_uni,Fzlo*0.224809,Fzloerr*0.224809, 's','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1)
+hold on
+errorbar(RPMs_uni,Fzup*0.224809,Fzuperr*0.224809,'^','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1)
+errorbar(RPMs_uni,Fz_data*0.224809,Fzerr*0.224809,'o','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1)
+xlabel('Rotor Speed [RPM]')
+ylabel('Thrust [lbf]')
+set(gca,'FontSize',18)
+% grid minor
+grid on
+hold on
+
+
 
 
 

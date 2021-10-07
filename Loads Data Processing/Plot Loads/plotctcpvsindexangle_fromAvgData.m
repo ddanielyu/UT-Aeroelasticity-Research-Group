@@ -9,12 +9,12 @@ for i = 1:length(AvgData_corr.avg_cps_inner)
     AvgData_corr.avg_cps_total{i} = (AvgData_corr.avg_cps_inner{i}+ AvgData_corr.avg_cps_outer{i})./2;
 end
 
-RPM_des = 1200;
-col_des = 10;
+RPM_des = 1250;
+col_des = 8;
 diffcol_des = 0;
 seperate = false;
-upcolor = colors{5};
-locolor = colors{3};
+upcolor = colors{2};
+locolor = colors{5};
 totcolor = colors{1};
 
 % 4-BLADED ROTOR

@@ -125,6 +125,10 @@ for k = 1:length(StreamData.names)
         if RotorTurning
             if enc == 'Y'||enc == 'y'
                 az = StreamData.encoder{k}(count:count-1+b)';
+                % CHECK THAT ENCODER COLUMN IS INCREASING
+                if ~issorted(az)
+                   az = [360/b:360/b:360];
+                end
             else 
                 az = [360/b:360/b:360];
 %                 StreamData.encoder{k}(count:count-1+b) =[360/b:360/b:360]; 

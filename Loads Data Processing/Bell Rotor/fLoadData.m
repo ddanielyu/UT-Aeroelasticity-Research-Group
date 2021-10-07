@@ -264,7 +264,7 @@ for k = 1:nfiles
     StreamData.Mz_inner{k} = data{:,Mzicol}*-1;         %L
     StreamData.ax{k} = data{:,axcol};                %M
     StreamData.ay{k} = data{:,aycol};                %N
-    StreamData.encoder{k} = data{:,enccol}*-1;          %W
+    StreamData.encoder{k} = data{:,enccol};          %W
 %     StreamData.curr1{k} = data{:,curr1col};          %W
 %     StreamData.curr2{k} = data{:,curr2col};          %W
     StreamData.revolution{k} = data{:,revcol};       %X
@@ -285,7 +285,7 @@ for k = 1:nfiles
     revnum = 0;
     for i = 1:length(StreamData.encoder{k})-1
         StreamData.revolution{k}(i,1) = revnum;
-        if (StreamData.encoder{k}(i) > 359)&& (StreamData.encoder{k}(i+1) < 1)
+        if (StreamData.encoder{k}(i) > 357)&& (StreamData.encoder{k}(i+1) < 3)
             revnum = revnum + 1; 
         end
     end

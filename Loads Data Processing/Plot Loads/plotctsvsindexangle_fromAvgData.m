@@ -9,8 +9,8 @@ for i = 1:length(AvgData_corr.avg_cps_inner)
     AvgData_corr.avg_cps_total{i} = (AvgData_corr.avg_cps_inner{i}+ AvgData_corr.avg_cps_outer{i})./2;
 end
 
-RPM_des = 1200;
-col_des = 10;
+RPM_des = 1250;
+col_des = 8;
 diffcol_des = 0;
 seperate = false;
 upcolor = colors{5};
@@ -238,25 +238,25 @@ else
     %%%%%%%%%%%CT%%%%%%%%%%%%
     % LOWER
     figure(1)
-    plot([-95,95],[CT_90,CT_90], '-','color',[0 0 0], 'linewidth',.7)
+%     plot([-95,95],[CT_90,CT_90], '-','color',[0 0 0], 'linewidth',.7)
     hold on
-    errorbar(phis_plot,CTlo,CTloerr, '.--','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1,'Markersize',10)
+    errorbar(phis_plot,CTlo,CTloerr, 's--','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1,'Markersize',10)
     % UPPER
     hold on
-    errorbar(phis_plot,CTup,CTuperr,'.:','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1,'Markersize',10)
+    errorbar(phis_plot,CTup,CTuperr,'^:','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1,'Markersize',10)
     % TOTAL
     hold on
-    errorbar(phis_plot,CT_data,CTerr, '.-','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1,'Markersize',10)
+    errorbar(phis_plot,CT_data,CTerr, 'o-','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1,'Markersize',10)
     xlabel('Index Angle, deg')
     ylabel('C_T/ \sigma')
     set(gca,'FontSize',20)
     grid on
     hold on
-    xlim([-90 90])
-    xticks([-90:15:90])
+%     xlim([-90 90])
+%     xticks([-90:15:90])
     ylim([0.04, 0.14])
     %   yticks([0.05:0.02:0.17])
-    legend('4-Bladed','Lower', 'Upper','Total', 'location', 'northwest')
+    legend('Lower', 'Upper','Total', 'location', 'northwest')
     
     %%%%%%%%%%%CP%%%%%%%%%%%%
     % LOWER

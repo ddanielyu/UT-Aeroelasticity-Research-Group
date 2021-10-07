@@ -42,6 +42,7 @@ warning off
 %% INPUTS
 
 directory = '\Users\admin-local\Box\Chloe Lab Stuff\2021 Fall Bell Rotor\Outdoor';
+directory = '/Users/chloe/Box/Chloe Lab Stuff/2021 Fall Bell Rotor/Indoor';
 
 rotor = input('Rotor type [ Uber CCR ]: ', 's');
 
