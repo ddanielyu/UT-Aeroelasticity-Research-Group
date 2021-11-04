@@ -18,8 +18,11 @@ tab_s = sones.conversion;
 tab_sm = sones.sm;
 tab_F = sones.F;
 
-N = length(f_c); % Number of points
-if N == 24
+Np = length(f_c); % Number of points
+if Np > 24
+    f_c = f_c(1:24);
+    db = db(1:24);
+    N = length(f_c);
     s = ones(N,1);
     
     for i = 1:N
@@ -27,7 +30,7 @@ if N == 24
         [m,loc_f] = min(abs(f_c(i) - tab_f));
         
         % Get sones value from table
-        s(i) = tab_s(db(i) == tab_db, loc_f);
+        s(i) = tab_s(round(db(i)) == tab_db, loc_f);
     end
     % Loudness of loudest band
     s_m = max(s);
@@ -48,7 +51,7 @@ if N == 24
     end
     
 else
-    fprintf('\nCannot calculate percieved loudness, not in 24 octave bands\n')
+    fprintf('\nCannot calculate percieved loudness, not sufficient number octave bands\n')
     PL = NaN;
 end
 

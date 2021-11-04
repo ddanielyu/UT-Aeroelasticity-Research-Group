@@ -125,12 +125,19 @@ for ii = 1:length(testdates)
 end
 
 %% 
+% calibration files 
+uni_calprefix = unique(calprefix);
+for k = 1:length(uni_calprefix)
+    calname = extractBefore(uni_calprefix{k}, ' -');
+    fprintf('\n%s\n',['Calibrating microphones. Calibration file: ',calname])  
+    uni_caldata{k} = fCalProc2(uni_calprefix{k});
+end
+for k = 1:length(calprefix)
+    caldata{k} = uni_caldata{strcmp(calprefix{k},uni_calprefix)};
+end
+
 for k = 1:length(testprefix)
-% calibration files    
-    calname = extractBefore(calprefix{k}, ' -');
-    fprintf('\n%s\n',['Calibrating microphones. Calibration file: ',calname])    
-    caldata{k} = fCalProc2(calprefix{k});
-    
+
 % initialize    
     testdata{k} = struct('name',[],'oaspl',[],'oasplA',[],'dbAdata',[],'dbdata',[],'Pdata',[],'Pdata_t',[],'testmag',[],'tvec',[],'wavdata',[],'fs',[],'fvec',[],'ofilt12_fvec',[],'ofilt12_Pdata',[],'ofilt12_dbdata',[],'ofilt3_fvec',[],'ofilt3_Pdata',[],'ofilt3_dbdata',[]);
     testdata{k}.name = extractBefore(testprefix{k},' -');  

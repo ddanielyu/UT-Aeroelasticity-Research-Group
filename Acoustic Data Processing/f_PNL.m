@@ -11,8 +11,11 @@ function PNL = f_PNL(f_c, db)
 
 load('PNLConversionTable.mat');
 
-N = length(f_c); % Number of points
-if N == 24
+Np = length(f_c); % Number of points
+if Np > 24
+    f_c = f_c(1:24);
+    db = db(1:24);
+    N = length(f_c);
     noys = ones(N,1);
     
     for i = 1:N
@@ -55,6 +58,6 @@ if N == 24
     PNL = 40 + 33.22*log10(n_t); % PNdB
 
 else
-    fprintf('\nCannot calculate percieved noise level, not in 24 octave bands\n')
+    fprintf('\nCannot calculate percieved noise level, not sufficient number octave bands\n')
     PNL = NaN;
 end
