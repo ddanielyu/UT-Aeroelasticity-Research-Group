@@ -1,0 +1,285 @@
+%{
+This script processes data from Fall 2021 Tripod Stand Testing. Either
+steady-state or phase-sync data can be processed.
+
+This processing code is a modification to the "LoadsProcessing.m" code, and
+essentially uses only fLoadData
+
+Written By: Matt Asper
+Date: 01 Dec 2021
+
+%}
+
+clc; clear; close all;
+load('colors.mat');
+
+%% Constants
+Fb = 8; %[N]
+Mb = 1.5; %[N-m]
+Fs = 10e3;
+GR = 1.2;
+
+I75_b = 0.75; %CR Magnetics Current Sensor Bias (1% error) [A]
+I150_b = 1.5;
+
+Az_b = 360/1024/2; %Encoder resolution 1024 bits / rev
+
+Fs = 10e3; %Sample rate [Hz]
+pre_trig = 0.25;
+post_trig = 1;
+
+Torque_Trig = 10; %N-m spike from Nominal Torque to find phase sync trigger
+
+source_dir = pwd; %directory of MATLAB scripts
+%% Inputs
+files_dir = uigetdir(); %directory of .csv data files
+GR = input('Gear Ratio: ');
+
+%% Load Data
+conditions = [54	29.88]; % [T(Farenh), % humidity, P(in.Hg)]
+
+[mdata,MeanData] = loadFiles(source_dir,files_dir,conditions); %load files
+[MeanData,StreamData] = loadStreamTripod(mdata,MeanData,source_dir,files_dir); %load streamdata
+
+%% Organize Steady and Phase Sync Tests
+
+% Check for phase sync or steady (torque pulse)
+fprintf('\nChecking for triggers...\n')
+for i = 1:length(StreamData.names)
+    nom_torque = mean(StreamData.Mz_inner{i});
+    if ismember(1,abs(StreamData.Mz_inner{i} - nom_torque) > Torque_Trig) 
+        %Phase Sync DID occur
+        if exist('phaseSync_test','var'); phaseSync_test{end+1} = StreamData.names{i};
+        else; phaseSync_test = {StreamData.names}; end
+            
+    else
+        %Steady State test
+        if exist('steady_test','var'); steady_test{end+1} = StreamData.names{i};
+        else; steady_test = {StreamData.names}; end
+    end
+        
+end
+
+%% Process ALL Data
+fprintf('\nProcessing data sets...\n')
+
+%Execute remainder of LoadsProcessing.m code
+[StreamData,SortedData] = fSortStream(StreamData{idx_steady});
+
+%account for GR
+StreamData.OMEGA{:} = StreamData.OMEGA{:}/GR;
+SortedData.cts_outer{:} = SortedData.cts_outer{:}*GR^2;
+SortedData.cps_outer{:} = SortedData.cps_outer{:}*GR^3;
+SortedData.cts_inner{:} = SortedData.cts_inner{:}*GR^2;
+SortedData.cps_inner{:} = SortedData.cps_inner{:}*GR^3;
+    
+RevData = fRevolutionAvg(SortedData);
+AvgData = fTotalAvg(RevData,SortedData,StreamData);
+
+
+%% Process Steady Data
+
+if exist('steady_test','var')
+    [Averages] = runSteady(StreamData,AvgData,steady_test);
+end
+
+
+%% Process Phase-Sync Data
+fprintf('\nProcessing steady-only data...\n')
+
+%Run remaining LoadsProcessing.m Code (modified for Post-Aug 2021 Tripod Stand)
+for i = 1:length(StreamData.Mz_inner)
+    %Find steady file in StreamData
+    idx_steady = cellfun(@(x) strcmp(x, steady_test{i}), StreamData.names, 'UniformOutput', 1);
+
+    %Execute remainder of LoadsProcessing.m code for steady data
+    [StreamData,SortedData] = fSortStream(StreamData{idx_steady});
+
+    %account for GR
+    StreamData{idx_steady}.OMEGA = StreamData{idx_steady}.OMEGA/GR;
+    SortedData.cts_outer{i} = SortedData{i}.cts_outer*GR^2;
+    SortedData{i}.cps_outer = SortedData{i}.cps_outer*GR^3;
+    SortedData{i}.cts_inner = SortedData{i}.cts_inner*GR^2;
+    SortedData{i}.cps_inner = SortedData{i}.cps_inner*GR^3;
+
+    RevData{i} = fRevolutionAvg(SortedData{i});
+    AvgData{i} = fTotalAvg(RevData{i},SortedData{i},StreamData{idx_steady});
+end
+fprintf('\n\n%s\n\n', 'Steady Processing done.');
+
+
+%% Process Phase Sync
+if exist('phaseSync_test','var')
+    
+    
+end
+% Find New Stream Data
+for i = 1:length(RevData.avg_Mz_outer) 
+    if ismember(i,Angle_Files) == 1; continue; end
+    StreamData.Mz_inner{i} = abs(StreamData.Mz_inner{i});
+    
+    Time     = 0:1/Fs:(length(StreamData.encoder{i})-1)/Fs;
+    
+    %find angle trigger and calculate the rev-averaged angle error
+    est_avg_Mz  = mean(StreamData.Mz_inner{i});
+
+    start(i)    = find((StreamData.Mz_inner{i} > est_avg_Mz + 5),1);          %first index at which trig occurs
+
+    rpm_motor0  = mean(StreamData.rpm{i}(1:start(i))*GR);                         %avg motor rpm prior to trig
+    dazds       = rpm_motor0/60*360/Fs;                                     %rate of change in az over samples
+    az_trig     = dazds*start(i);                                              %estimated az at the trig location [deg]
+    ref_angle{i}   = dazds*(0:length(StreamData.encoder{i})-1);                                            %time array of entire data set up to trigger
+    ref_angle{i}(start(i):end) = ref_angle{i}(start(i):end) + angle_offset;
+
+    %unwrap encoder measurements
+    StreamData.unwrap_enc{i}(1) = 0;
+    for ii = 2:length(StreamData.encoder{i}) 
+        if StreamData.encoder{i}(ii) > StreamData.encoder{i}(ii-1)
+            StreamData.unwrap_enc{i}(ii) = StreamData.unwrap_enc{i}(ii-1) + (StreamData.encoder{i}(ii) - StreamData.encoder{i}(ii-1));
+        elseif StreamData.encoder{i}(ii) < StreamData.encoder{i}(ii-1)
+            StreamData.unwrap_enc{i}(ii) = StreamData.unwrap_enc{i}(ii-1) + (StreamData.encoder{i}(ii) + (360 - StreamData.encoder{i}(ii-1)));
+        end
+    end
+
+    %calc angle err
+    idx = 1;
+    while idx <= length(ref_angle{i})
+        StreamData.angle_err{i}(idx) = StreamData.unwrap_enc{i}(idx) - ref_angle{i}(idx);
+        idx = idx+1;
+    end
+    hi = StreamData.unwrap_enc{i} - StreamData.unwrap_enc{i}(start(i)); 
+    
+    idx_trig        = (start(i) - pre_trig*Fs):(start(i) + post_trig*Fs); %index .25s pre-trig and 1s post-trig
+    time            = Time - Time(start(i)); time = time(idx_trig);%get time vect
+    time0           = Time - Time(start(i)); time0 = time0(idx_trig - 1);
+    Mz_trans(:,i)   = StreamData.Mz_inner{i}(idx_trig);
+    RPM_dazdt(:,i)  = (StreamData.unwrap_enc{i}(idx_trig) - StreamData.unwrap_enc{i}(idx_trig - 1))./(time - time0)*60/360;
+    RPM_dazdt(:,i)  = fcleanup(RPM_dazdt(:,i), 'smoothdata', 'loess', 700);
+    Angle_err(:,i)  = StreamData.angle_err{i}(idx_trig);
+    Meas_angle(:,i) = hi(idx_trig);
+    
+    fft_vector      = Mz_trans(pre_trig*Fs:(pre_trig*Fs + 0.05*Fs),i);
+    T               = 1/Fs;
+    L               = length(fft_vector);
+    t               = (0:L-1)*T;
+    P2              = abs(fft(fft_vector)/L);
+    P1              = P2(1:L/2+1);
+    Mz_fft(:,i)     = 2*P1(2:end-1);
+    Mz_f(:,i)       = Fs*(0:(L/2))/L;
+
+end
+Mz_trans(:,1:2) = []; angle_err(:,1:2) = []; Meas_angle(:,1:2) = []; RPM_dazdt(:,1:2) = [];
+avg_Mz_trans = mean(Mz_trans');
+err_Mz_trans = 2.228 * sqrt(std(Mz_trans').^2 + Mb^2)/sqrt(10);
+avg_angle_err = mean(angle_err');
+err_angle_err = 2.228 * sqrt(std(angle_err').^2 + Az_b^2)/sqrt(10);
+Meas_angle    = mean(Meas_angle');
+avg_RPM_dazdt = mean(RPM_dazdt');
+err_RPM_dazdt = 2.228 * std(RPM_dazdt')/sqrt(10);
+
+%% Load Simulink
+plotsim = input('Plot with Sim [y/n]: ','s');
+
+if plotsim == 'y'
+    fprintf('Select Sim File to Load...\n');
+    [sim_file,sim_path] = uigetfile(strcat('/Users/asper101/Box Sync/For Matt/3rd Year/Electromechanical Modeling/'));
+    load(fullfile(sim_path,sim_file));
+    sim_step = 8;
+    Angle_err.time = Angle_err.time - sim_step;
+    Act_angle.time = Act_angle.time - sim_step;
+    Motor_RPM.time = Motor_RPM.time - sim_step;
+    Q_total.time = Q_total.time - sim_step;
+%     nRev.time = nRev.time - sim_step;
+end
+
+[~,full_step] = min(abs(nRev.time - sim_step));
+[~,full_step1] = min(abs(nRev.time - sim_step + 0.1));
+nRev_new = nRev.data;
+
+%% Plotting
+close all; clc;
+
+%Subplots
+f1 = figure('Name','Response_vs_time');
+subplot(3,1,1)
+hold on
+plot_areaerrorbar(time,avg_angle_err,err_angle_err,colors{1})
+plot(Angle_err.time, Angle_err.data * -1,'k-','linewidth',1.5)
+hold off
+ylabel('Angle Error, deg')
+legend('Experiment','','Prediction')
+grid on
+grid minor
+xlim([-.1 1])
+
+subplot(3,1,2)
+hold on
+plot_areaerrorbar(time,avg_RPM_dazdt,err_RPM_dazdt,colors{1})
+plot(Motor_RPM.time, Motor_RPM.data,'k-','linewidth',1.5)
+hold off
+ylabel('$\Omega_{motor}$, RPM')
+legend('Experiment','','Prediction')
+grid on
+grid minor
+xlim([-.1 1])
+
+subplot(3,1,3)
+hold on
+plot_areaerrorbar(time,avg_Mz_trans/GR,err_Mz_trans/GR,colors{1})
+plot(Q_total.time, Q_total.data/GR,'k-','linewidth',1.5)
+hold off
+ylabel('$Q_{motor}$, $N\cdot m$')
+xlabel('Time, s')
+legend('Experiment','','Prediction')
+sgtitle('$+5^\circ$ Angle Offset','Fontsize',24)
+formatfig
+grid on
+grid minor
+xlim([-.1 1])
+f1.Position = [326,236,674,561];
+
+%Subplots
+f2 = figure('Name','Response_vs_revolution');
+subplot(3,1,1)
+hold on
+plot_areaerrorbar(Meas_angle/360,avg_angle_err,err_angle_err,colors{1})
+plot(nRev_new(full_step1:end)-nRev_new(full_step),Angle_err.data(full_step1:end) * -1,'k-','linewidth',1.5)
+ylabel('Angle Error, deg')
+legend('Experiment','','Prediction')
+hold off
+grid on
+grid minor
+xlim([-1 8])
+
+subplot(3,1,2)
+hold on
+plot_areaerrorbar(Meas_angle/360,avg_RPM_dazdt,err_RPM_dazdt,colors{1})
+plot(nRev_new(full_step1:end)-nRev_new(full_step),Motor_RPM.data(full_step1:end-6),'k-','linewidth',1.5)
+ylabel('$\Omega_{motor}$, RPM')
+legend('Experiment','','Prediction')
+hold off
+grid on
+grid minor
+xlim([-1 8])
+
+subplot(3,1,3)
+hold on
+plot_areaerrorbar(Meas_angle/360,avg_Mz_trans/GR,err_Mz_trans/GR,colors{1})
+plot(nRev_new(full_step1:end)-nRev_new(full_step),Q_total.data(full_step1:end-6)/GR,'k-','linewidth',1.5)
+hold off
+ylabel('$Q_{motor}$, $N\cdot m$')
+xlabel('Motor Revolution')
+sgtitle('$+5^\circ$ Angle Offset','Fontsize',24)
+legend('Experiment','','Prediction')
+formatfig
+grid on
+grid minor
+xlim([-1 8])
+f2.Position = [326,236,674,561];
+
+%% Saving
+saveas(f1,f1.Name,'jpg')
+saveas(f2,f2.Name,'jpg')
+
+
+
