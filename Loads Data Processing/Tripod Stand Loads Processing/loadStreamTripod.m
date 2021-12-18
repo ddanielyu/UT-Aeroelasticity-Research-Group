@@ -61,7 +61,7 @@ switch (rotor)
         MeanData.rhos = mdata{:,'rho'};
 end
 
-%cd('streaming');   % enter streaming files directory 
+% cd('Streaming');   % enter streaming files directory 
 [nfiles, ~] = size(mdata);
 
 fprintf('\n%s\n', 'Reading streaming files');
