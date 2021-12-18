@@ -7,7 +7,7 @@ load('colors.mat')
 %% Load Prediction
 
 %call BEMT (Ct,Cp,theta)
-BEMT = load('/Users/asper101/Box Sync/Matt Lab Stuff/3rd Year/BEMT/FINAL/BEMTdata_rev2.mat');
+BEMT = load('BEMTdata_rev2.mat');
 
 %create predicted Thrust and Power curves
 RPM = linspace(0,1200,2000);
