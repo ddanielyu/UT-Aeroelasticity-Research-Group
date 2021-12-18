@@ -29,7 +29,19 @@ post_trig = 1;
 
 
 %% Find New Stream Data
-for i = 1:length(phaseSync_test) 
+cnt = 1; %counter for splitting phase sync sets letters into cells
+ij = 1; %counter for indexing each test withing a set
+
+for i = 1:length(phaseSync_test)
+    if i > 1 
+        current_test_name = split(phaseSync_test{i},'_');
+        fprintf('\n%s%s\n','Processing phase-sync test ',current_test_name{3})        
+        prev_test_name = split(phaseSync_test{i-1},'_');
+        current_letter = current_test_name{3}; 
+        previous_letter = prev_test_name{3};
+        if current_letter ~= previous_letter; cnt = cnt+1; ij = 1; end %add another test set
+    end
+    
     %Find phase-sync file in StreamData
     idx_PS = cellfun(@(x) strcmp(x, phaseSync_test{i}), StreamData.names, 'UniformOutput', 1);
     
@@ -81,22 +93,26 @@ for i = 1:length(phaseSync_test)
     T_trans(:,idx_PS)   = abs(StreamData.Fz_inner{idx_PS}(idx_trig));
     T_trans(:,idx_PS)  = fcleanup(T_trans(:,idx_PS), 'smoothdata', 'loess', 1000);
 
-    PhaseSync.time = time; %get time vect
-    PhaseSync.Thrust(:,i) = T_trans(:,idx_PS);
-    PhaseSync.Angle_err(:,i) = StreamData.angle_err{idx_PS}(idx_trig);
-    PhaseSync.Speed(:,i) = RPM_dazdt(:,idx_PS);
-    PhaseSync.Torque(:,i) = Mz_trans(:,idx_PS)/GR;
+    PhaseSync.Meas_angle{cnt}(:,ij) = Meas_angle(:,idx_PS); %get time vec
+    PhaseSync.time{cnt} = time; %get time vect
+    PhaseSync.Thrust{cnt}(:,ij) = T_trans(:,idx_PS);
+    PhaseSync.Angle_err{cnt}(:,ij) = StreamData.angle_err{idx_PS}(idx_trig);
+    PhaseSync.Speed{cnt}(:,ij) = RPM_dazdt(:,idx_PS);
+    PhaseSync.Torque{cnt}(:,ij) = Mz_trans(:,idx_PS)/GR;
+    ij = ij + 1;
 end
 
-PhaseSync.rev = mean(Meas_angle');
-PhaseSync.T_avg = mean(PhaseSync.Thrust');
-PhaseSync.T_err = tinv(.975,size(PhaseSync.Thrust,2)) * sqrt(std(PhaseSync.Thrust').^2 + Fb^2)/sqrt(size(PhaseSync.Thrust,2));
-PhaseSync.Ang_err_avg = mean(PhaseSync.Angle_err');
-PhaseSync.Ang_err_err = tinv(.975,size(PhaseSync.Angle_err,2)) * sqrt(std(PhaseSync.Angle_err').^2 + Az_b^2)/sqrt(size(PhaseSync.Angle_err,2));
-PhaseSync.Speed_avg = mean(PhaseSync.Speed');
-PhaseSync.Speed_err = tinv(.975,size(PhaseSync.Speed,2)) * std(PhaseSync.Speed')/sqrt(size(PhaseSync.Speed,2));
-PhaseSync.Torque_avg = mean(PhaseSync.Torque');
-PhaseSync.Torque_err = tinv(.975,size(PhaseSync.Torque,2)) * sqrt(std(PhaseSync.Torque').^2 + Mb^2)/sqrt(size(PhaseSync.Torque,2));
+for i = 1:length(PhaseSync.Thrust)
+    PhaseSync.rev{i} = mean(PhaseSync.Meas_angle{i}');
+    PhaseSync.T_avg{i} = mean(PhaseSync.Thrust{i}');
+    PhaseSync.T_err = tinv(.975,size(PhaseSync.Thrust,2)) * sqrt(std(PhaseSync.Thrust').^2 + Fb^2)/sqrt(size(PhaseSync.Thrust,2));
+    PhaseSync.Ang_err_avg = mean(PhaseSync.Angle_err');
+    PhaseSync.Ang_err_err = tinv(.975,size(PhaseSync.Angle_err,2)) * sqrt(std(PhaseSync.Angle_err').^2 + Az_b^2)/sqrt(size(PhaseSync.Angle_err,2));
+    PhaseSync.Speed_avg = mean(PhaseSync.Speed');
+    PhaseSync.Speed_err = tinv(.975,size(PhaseSync.Speed,2)) * std(PhaseSync.Speed')/sqrt(size(PhaseSync.Speed,2));
+    PhaseSync.Torque_avg = mean(PhaseSync.Torque');
+    PhaseSync.Torque_err = tinv(.975,size(PhaseSync.Torque,2)) * sqrt(std(PhaseSync.Torque').^2 + Mb^2)/sqrt(size(PhaseSync.Torque,2));
+end
 
 fprintf('\nPhase-sync processing done.\n')
 
