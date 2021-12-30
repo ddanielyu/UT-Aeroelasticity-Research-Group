@@ -111,6 +111,7 @@ for k = 1:nfiles
     StreamData.curr1{k} = data{:,curr1col};          %W
     StreamData.curr2{k} = data{:,curr2col};          %W
     StreamData.curr3{k} = -(StreamData.curr1{k} +  StreamData.curr2{k});          %W
+    StreamData.IQ{k} = parkClarke([StreamData.curr1{k};StreamData.curr2{k};StreamData.curr3{k}]); %Calc Quad Current
     StreamData.bus_curr{k} = data{:,curr3col};          %W
     StreamData.revolution{k} = data{:,revcol};       %X
     StreamData.trigger{k} = data{:,trigcol};         %Q           
