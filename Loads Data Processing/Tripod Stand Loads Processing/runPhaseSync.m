@@ -15,6 +15,8 @@ Torque "; Torque_avg; Torque_err; (motor torque!!)
 %}
 
 %% Constants
+Kt = 0.675; %[N-m/Arms] Estimated torque constant based on 12/16/2021 tripod stand testing of Q-I Curve Fit
+
 Fb = 8; %[N]
 Mb = 1.5; %[N-m]
 
@@ -28,7 +30,6 @@ Fs = 10e3; %Sample rate [Hz]
 pre_trig = 0.25;
 post_trig = 1;
 
-Kt = 0.675; %[N-m/Arms] Estimated torque constant based on 12/16/2021 tripod stand testing of Q-I Curve Fit
 
 %% Find New Stream Data
 cnt = 1; %counter for splitting phase sync sets letters into cells
@@ -88,7 +89,7 @@ for i = 1:length(phaseSync_test)
     time            = Time - Time(start); time = time(idx_trig);%get time vect
     time0           = Time - Time(start); time0 = time0(idx_trig - 1);
     Mz_trans(:,idx_PS)   = StreamData.Mz_inner{idx_PS}(idx_trig);
-    Q_est_trans(:,idx_PS)   = StreamData.IQ{idx_PS}(idx_trig)*Kt; %estimated motor torque based on IQ and Kt
+    Q_est_trans(:,idx_PS)   = StreamData.IQ{idx_PS}(idx_trig)*Kt/sqrt(2); %estimated motor torque based on IQ and Kt
     RPM_dazdt(:,idx_PS)  = (StreamData.unwrap_enc{idx_PS}(idx_trig) - StreamData.unwrap_enc{idx_PS}(idx_trig - 1))./(time - time0)*60/360;
     RPM_dazdt(:,idx_PS)  = fcleanup(RPM_dazdt(:,idx_PS), 'smoothdata', 'loess', 700);
     Angle_err(:,idx_PS)  = StreamData.angle_err{idx_PS}(idx_trig);
@@ -123,7 +124,7 @@ for i = 1:length(PhaseSync.Thrust)
     PhaseSync.Torque_pk_avg(i) = mean(PhaseSync.Torque_pk{i});
     PhaseSync.Torque_pk_err(i) = tinv(.975,size(PhaseSync.Torque_pk{i},2)) * sqrt(std(PhaseSync.Torque_pk{i}).^2 + Mb^2)/sqrt(size(PhaseSync.Torque_pk{i},2));
     PhaseSync.Q_est_avg{i} = mean(PhaseSync.Q_est{i}');
-    PhaseSync.Q_est_err{i} = tinv(.975,size(PhaseSync.Q_est{i},2)) * sqrt(std(PhaseSync.Q_est{i}').^2 + IQ_b^2)/sqrt(size(PhaseSync.Q_est{i},2));
+    PhaseSync.Q_est_err{i} = tinv(.975,size(PhaseSync.Q_est{i},2)) * sqrt(std(PhaseSync.Q_est{i}').^2 + (IQ_b*Kt/sqrt(2))^2)/sqrt(size(PhaseSync.Q_est{i},2));
 end
 
 fprintf('\nPhase-sync processing done.\n')
