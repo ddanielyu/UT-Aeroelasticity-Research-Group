@@ -105,13 +105,19 @@ end
 %% Plotting
 close all; clc;
 
-if exist('steady_test','var'); plotSteady(Averages,collective); end
-if exist('phaseSync_test','var'); plotPhaseSync(PhaseSync); end
+if exist('steady_test','var'); [f1,f2,f3,f4] = plotSteady(Averages,collective); end
+if exist('phaseSync_test','var'); [f5,f6,f7] = plotPhaseSync(PhaseSync,phaseSync_test); end
 
 
 %% Saving
-% saveas(f1,f1.Name,'jpg')
-% saveas(f2,f2.Name,'jpg')
+save_dir = uigetdir();
+saveas(f1,fullfile(save_dir,f1.Name),'jpg')
+saveas(f2,fullfile(save_dir,f2.Name),'jpg')
+saveas(f3,fullfile(save_dir,f3.Name),'jpg')
+saveas(f4,fullfile(save_dir,f4.Name),'jpg')
+saveas(f5,fullfile(save_dir,f5.Name),'jpg')
+saveas(f6,fullfile(save_dir,f6.Name),'jpg')
+saveas(f7,fullfile(save_dir,f7.Name),'jpg')
 
 
 
