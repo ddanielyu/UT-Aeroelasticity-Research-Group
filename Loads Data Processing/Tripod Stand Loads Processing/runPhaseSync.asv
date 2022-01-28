@@ -88,7 +88,7 @@ for i = 1:length(phaseSync_test)
     time            = Time - Time(start); time = time(idx_trig);%get time vect
     time0           = Time - Time(start); time0 = time0(idx_trig - 1);
     Mz_trans(:,idx_PS)   = StreamData.Mz_inner{idx_PS}(idx_trig);
-    Q_est_trans(:,idx_PS)   = StreamData.IQ{idx_PS}(idx_trig)*Kt; %estimated motor torque based on IQ and Kt
+    Q_est_trans(:,idx_PS)   = StreamData.IQ{idx_PS}(idx_trig)*Kt/sqrt(2); %estimated motor torque based on IQ and Kt
     RPM_dazdt(:,idx_PS)  = (StreamData.unwrap_enc{idx_PS}(idx_trig) - StreamData.unwrap_enc{idx_PS}(idx_trig - 1))./(time - time0)*60/360;
     RPM_dazdt(:,idx_PS)  = fcleanup(RPM_dazdt(:,idx_PS), 'smoothdata', 'loess', 700);
     Angle_err(:,idx_PS)  = StreamData.angle_err{idx_PS}(idx_trig);
