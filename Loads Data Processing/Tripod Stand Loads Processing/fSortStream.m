@@ -1,5 +1,14 @@
 function [StreamData, SortedData] = fSortStream(StreamData)
-% INPUTS
+%{
+EDITED ON: 01/12/2022
+EDITED BY: MATT ASPER
+
+Details: Updated Post-Aug 2021 Tripod Loads Processing Code to create a bus
+current variable and changed current 3 from bus current to the third phase
+current. Also added the quadrature current, IQ variable.
+
+%}
+%INPUTS
 %     StreamData
 %     conditions = [Temperature [F], % Humidity, Prassure [in-hg]]
 % OUTPUTS
@@ -99,6 +108,8 @@ for k = 1:length(StreamData.names)
     SortedData.curr1{k} = [];
     SortedData.curr2{k} = [];
     SortedData.curr3{k} = [];
+    SortedData.bus_curr{k} = [];
+    SortedData.IQ{k} = [];
     
     SortedData.cts_outer{k} = [];
     SortedData.cps_outer{k} = [];
@@ -179,6 +190,10 @@ for k = 1:length(StreamData.names)
                 SortedData.curr2{k}(n,:) = interp1(az, StreamData.curr2{k}(count:dcm8:count-1+b)', SortedData.azimuth{k}, 'pchip');
 
                 SortedData.curr3{k}(n,:) = interp1(az, StreamData.curr3{k}(count:dcm8:count-1+b)', SortedData.azimuth{k}, 'pchip');
+                
+                SortedData.bus_curr{k}(n,:) = interp1(az, StreamData.bus_curr{k}(count:dcm8:count-1+b)', SortedData.azimuth{k}, 'pchip');
+                
+                SortedData.IQ{k}(n,:) = interp1(az, StreamData.IQ{k}(count:dcm8:count-1+b)', SortedData.azimuth{k}, 'pchip');
             else
                 SortedData.encoder{k}(n,1:b) = az;
                 azdt = circshift(az,-1);
@@ -223,6 +238,10 @@ for k = 1:length(StreamData.names)
 
                 SortedData.curr3{k}(n,:) = interp1(az, StreamData.curr3{k}(count:count-1+b)', SortedData.azimuth{k}, 'pchip');
                 
+                SortedData.bus_curr{k}(n,:) = interp1(az, StreamData.bus_curr{k}(count:count-1+b)', SortedData.azimuth{k}, 'pchip');
+                
+                SortedData.IQ{k}(n,:) = interp1(az, StreamData.IQ{k}(count:count-1+b)', SortedData.azimuth{k}, 'pchip');
+                
             end
         else
             SortedData.azimuth{k} = 0:1/b*360:360*(1-1/b);
@@ -245,6 +264,8 @@ for k = 1:length(StreamData.names)
             SortedData.curr1{k}(n,:) = StreamData.curr1{k}(count:count-1+b)';
             SortedData.curr2{k}(n,:) = StreamData.curr2{k}(count:count-1+b)';
             SortedData.curr3{k}(n,:) = StreamData.curr3{k}(count:count-1+b)';
+            SortedData.bus_curr{k}(n,:) = StreamData.bus_curr{k}(count:count-1+b)';
+            SortedData.IQ{k}(n,:) = StreamData.IQ{k}(count:count-1+b)';
 
         end
         
@@ -270,6 +291,8 @@ for k = 1:length(StreamData.names)
             SortedData.curr1{k}(1,:) = [];
             SortedData.curr2{k}(1,:) = [];
             SortedData.curr3{k}(1,:) = [];
+            SortedData.bus_curr{k}(1,:) = [];
+            SortedData.IQ{k}(1,:) = [];
     
     OMEGA = StreamData.OMEGA{k}(2:length(StreamData.OMEGA{k}));
     SortedData.cts_outer{k} = SortedData.Fz_outer{k} ./ StreamData.rho{k} / (pi * StreamData.R^2) ./ (OMEGA'*StreamData.R).^2 / StreamData.sigma;

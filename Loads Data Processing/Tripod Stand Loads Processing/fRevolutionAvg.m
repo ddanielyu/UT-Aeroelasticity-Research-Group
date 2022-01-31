@@ -1,4 +1,13 @@
 function RevData = fRevolutionAvg(SortedData)
+%{
+EDITED ON: 01/12/2022
+EDITED BY: MATT ASPER
+
+Details: Updated Post-Aug 2021 Tripod Loads Processing Code to create a bus
+current variable and changed current 3 from bus current to the third phase
+current. Also added the quadrature current, IQ variable.
+
+%}
 % AVERAGES DATA INTO A SINGLE REVOLUTION
 %
 % INPUTS
@@ -102,6 +111,8 @@ for k = 1:length(SortedData.Fx_inner)
     RevData.avg_curr1{k} = nanmean(SortedData.curr1{k});
     RevData.avg_curr2{k} = nanmean(SortedData.curr2{k});
     RevData.avg_curr3{k} = nanmean(SortedData.curr3{k});
+    RevData.avg_bus_curr{k} = nanmean(SortedData.bus_curr{k});
+    RevData.avg_IQ{k} = nanmean(SortedData.IQ{k});
     
     RevData.avg_cts_outer{k} = nanmean(SortedData.cts_outer{k});
     RevData.avg_cps_outer{k} = nanmean(SortedData.cps_outer{k});
@@ -135,6 +146,8 @@ for k = 1:length(SortedData.Fx_inner)
     RevData.err_curr1{k} = nanstd(SortedData.curr1{k});
     RevData.err_curr2{k} = nanstd(SortedData.curr2{k});
     RevData.err_curr3{k} = nanstd(SortedData.curr3{k});
+    RevData.err_bus_curr{k} = nanstd(SortedData.bus_curr{k});
+    RevData.err_IQ{k} = nanstd(SortedData.IQ{k});
     
     RevData.err_cts_outer{k} = nanstd(SortedData.cts_outer{k});
     RevData.err_cps_outer{k} = nanstd(SortedData.cps_outer{k});
@@ -169,6 +182,8 @@ for k = 1:length(SortedData.Fx_inner)
     RevData.ms_curr1{k} = nanmean(SortedData.curr1{k}');
     RevData.ms_curr2{k} = nanmean(SortedData.curr2{k}');
     RevData.ms_curr3{k} = nanmean(SortedData.curr3{k}');
+    RevData.ms_bus_curr{k} = nanmean(SortedData.bus_curr{k}');
+    RevData.ms_IQ{k} = nanmean(SortedData.IQ{k}');
     
     RevData.ms_cts_outer{k} = nanmean(SortedData.cts_outer{k}');
     RevData.ms_cps_outer{k} = nanmean(SortedData.cps_outer{k}');

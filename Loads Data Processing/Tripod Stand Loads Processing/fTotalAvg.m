@@ -1,4 +1,13 @@
 function AvgData = fTotalAvg(RevData,SortedData,StreamData)
+%{
+EDITED ON: 01/12/2022
+EDITED BY: MATT ASPER
+
+Details: Updated Post-Aug 2021 Tripod Loads Processing Code to create a bus
+current variable and changed current 3 from bus current to the third phase
+current. Also added the quadrature current, IQ variable.
+
+%}
 % CALCULATES TOTAL AVERAGE AND ERROR FOR STREAM DATA FILE
 %
 % INPUTS
@@ -14,6 +23,7 @@ function AvgData = fTotalAvg(RevData,SortedData,StreamData)
 %                     .avg_FM_outer 
 %                     .avg_FM_inner
 %                     .avg_FM_tot 
+%                     .avg_IQ 
 %                     .err_cts_outer = sqrt(std(means)^2 + bias^2)/
 %                                      sqrt(Nrev)
 %                     .err_cps_outer   bias from uncertainty in load cell (8 N force, .48 N-m in moment; 
@@ -22,6 +32,7 @@ function AvgData = fTotalAvg(RevData,SortedData,StreamData)
 %                     .err_FM_outer 
 %                     .err_FM_inner
 %                     .err_FM_tot 
+%                     .err_IQ
 fprintf('\n%s\n', 'Averaging data');
 
 for k = 1:length(StreamData.names)
@@ -44,9 +55,12 @@ for k = 1:length(StreamData.names)
     AvgData.avg_FM_inner{k} = nanmean(RevData.avg_FM_inner{k});
     AvgData.avg_FM_tot{k} = nanmean(RevData.avg_FM_tot{k});
     AvgData.avg_ctcp{k} = nanmean(RevData.avg_ctcp{k});
-    
+    AvgData.avg_IQ{k} = nanmean(RevData.avg_IQ{k});
+
     cts_bias = 18.75 / ct_den / StreamData.sigma;
     cps_bias = 1.5 / cq_den / StreamData.sigma;
+    I_bias = 1.5; %standard 1% error of 150 A sensor
+    IQ_bias = sqrt(2/3)*sqrt(3*I_bias^2); %error propagation of CR_150A current sensors
     
     % standard error of the mean
     % se = std(means)/sqrt(Nrev)
@@ -73,7 +87,9 @@ for k = 1:length(StreamData.names)
     + (2*cts_bias)^2 ) / sqrt(SortedData.nrevs{k}); 
     
     AvgData.err_cps_total{k} = 1.96* sqrt( std(RevData.ms_cps_outer{k}+RevData.ms_cps_inner{k})^2 ...
-    + (2*cps_bias)^2 ) / sqrt(SortedData.nrevs{k}); 
+    + (2*cps_bias)^2 ) / sqrt(SortedData.nrevs{k});
+
+    AvgData.err_IQ{k} = 1.96* sqrt( std(RevData.ms_IQ{k})^2 + IQ_bias^2)/sqrt(SortedData.nrevs{k});
     
     fprintf('%s\n', ' Ok');
 end

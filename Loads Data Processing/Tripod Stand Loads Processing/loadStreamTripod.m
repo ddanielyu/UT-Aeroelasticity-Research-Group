@@ -23,7 +23,7 @@ aycol = 14;          % mag Ay column
 enccol = 15;         % encoder angle column
 curr1col = 16;       % current 1 column
 curr2col = 17;       % current 2 column
-curr3col = 18;       % current 2 column
+curr3col = 18;       % current 3 column
 trigcol = 19;        % analog trigger column
 revcol = 20;         % revolution column
 rpmcol = 21;
@@ -61,7 +61,7 @@ switch (rotor)
         MeanData.rhos = mdata{:,'rho'};
 end
 
-%cd('streaming');   % enter streaming files directory 
+% cd('Streaming');   % enter streaming files directory 
 [nfiles, ~] = size(mdata);
 
 fprintf('\n%s\n', 'Reading streaming files');
@@ -85,6 +85,7 @@ for k = 1:nfiles
     StreamData.curr1{k} = [];
     StreamData.curr2{k} = [];
     StreamData.curr3{k} = [];
+    StreamData.bus_curr{k} = [];
     StreamData.revolution{k} = [];
     StreamData.trigger{k} = [];
     StreamData.nrevs{k} = [];
@@ -109,7 +110,9 @@ for k = 1:nfiles
     StreamData.encoder{k} = abs(data{:,enccol});          %W
     StreamData.curr1{k} = data{:,curr1col};          %W
     StreamData.curr2{k} = data{:,curr2col};          %W
-    StreamData.curr3{k} = data{:,curr3col};          %W
+    StreamData.curr3{k} = -(StreamData.curr1{k} +  StreamData.curr2{k});          %W
+    StreamData.IQ{k} = parkClarke(StreamData.curr1{k},StreamData.curr2{k},StreamData.curr3{k}); %Calc Quad Current
+    StreamData.bus_curr{k} = data{:,curr3col};          %W
     StreamData.revolution{k} = data{:,revcol};       %X
     StreamData.trigger{k} = data{:,trigcol};         %Q           
     StreamData.nrevs{k} = StreamData.revolution{k}(end);
