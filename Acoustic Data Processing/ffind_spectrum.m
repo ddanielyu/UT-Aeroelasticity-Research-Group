@@ -24,7 +24,7 @@ function [fvec, magX, powerX] = ffind_spectrum(fs, x, NFFT, Nav, win)
 
 % pad the end of the vectors if length of the vector is odd
 if ( mod(length(x),2) == 1 )
-    x = [x x(end)];
+    x = [x; x(end)];
 end
 
 N = length(x);
@@ -71,8 +71,9 @@ DFTXblock2 = fft(xblock);              % matrix containing the DFT of the column
 DFTXblock = DFTXblock2(1:NFFT/2, :);   % single-sided DFT
 magXblock = abs(DFTXblock);             % absolute value
 
-magVs2 = 2 /NFFT *magXblock;           % magnitude at each frequency
-powerVs2 = 2* magXblock.^2/ NFFT^2;      % power in each bin
+magVs2 = 1/NFFT *magXblock;           % magnitude at each frequency
+magVs2(2:end) = 2.*magVs2(2:end);
+powerVs2 = 2* magXblock.^2/ NFFT^2;     % power in each bin
 
 magX = mean(magVs2,2);                % average of all the blocks
 powerX = mean(powerVs2,2);

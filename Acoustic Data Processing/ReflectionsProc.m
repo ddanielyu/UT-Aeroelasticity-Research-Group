@@ -24,12 +24,12 @@ testdata_impulse = TestProc_SingleMic(testdate, testletter, micnums, caldata, pl
 plot(testdata_impulse(micnums).tvec, testdata_impulse(micnums).wavdata)
 
 %% LOAD REFLECTIONS
-testdate = '200228';
-testletter = 'a_3';
-plots = false;
-micnums = [7];
-testdata_refl = TestProc_SingleMic(testdate, testletter, micnums, caldata, plots);
-
-%% PLOT
-hold on
-plot(testdata_refl(micnums).tvec, testdata_refl(micnums).wavdata)
+% testdate = '200228';
+% testletter = 'a_3';
+% plots = false;
+% micnums = [7];
+% testdata_refl = TestProc_SingleMic(testdate, testletter, micnums, caldata, plots);
+% 
+% %% PLOT
+% hold on
+% plot(testdata_refl(micnums).tvec, testdata_refl(micnums).wavdata)

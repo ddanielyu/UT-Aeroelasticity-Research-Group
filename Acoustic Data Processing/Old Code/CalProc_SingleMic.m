@@ -35,7 +35,7 @@ for micnum = micnums
         [caldata(micnum).fvec, caldata(micnum).calmag, ~, ~] = ffind_dft(caldata(micnum).tvec, caldata(micnum).wavdata, 0);
         caldata(micnum).scale = max(caldata(micnum).calmag);
         
-        caldata(micnum).calfactor = CalFactor(caldata, cal_db,micnum);
+        caldata(micnum).calfactor = fCalFactor(caldata, cal_db,micnum);
         
         if (plots)
         loglog(caldata(micnum).fvec, caldata(micnum).calmag);
