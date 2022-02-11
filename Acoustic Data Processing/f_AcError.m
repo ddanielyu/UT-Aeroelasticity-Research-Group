@@ -138,65 +138,18 @@ for k = 1:length(testprefix)
 % load data            
             [x,fs] = audioread(fname);
             N = length(x);
-% process data          
-            % tvec
-            t = 0: 1/fs: (length(x)-1)/fs;
-            
-            % fft
-            [fvec, mag, ~] = ffind_spectrum(fs, x, N, 1);
-            
-            % filter
+% process data      
+            params.cal = caldata{k}(micnum).calfactor;
+            params.doub = doubling_factor;
+% filter + error
             window = 'hamming';
             N_avg = 20; 
                 % 20 avgs with 50% overlap
-            [fvec_filt, mag_filt, ~] = ffind_spectrum(fs, x, 2*N/N_avg, N_avg, window);
-            
-            % convert to pressure
-                % freq domain
-            P = mag * caldata{k}(micnum).calfactor * doubling_factor; 
-            P_filt = mag_filt * caldata{k}(micnum).calfactor * doubling_factor;
-                % time domain
-            P_t = x * caldata{k}(micnum).calfactor * doubling_factor;
-            
-                
-% octave filtering
-                % 1/3
-            [testdata{k}(micnum).fc,P3] = fOctaveFilter(fvec,P,3);
-            
-% convert to dB
-            Pref = 20E-6; %[Pa]
-            db = 20*log10(P / Pref);
-            db_filt = 20*log10(P_filt / Pref);
-            db3 = 20*log10(P3 / Pref);
-            
-% OASPL
-            testdata{k}(micnum).oaspl = fOverallSPL_time(P_t, t); 
-            testdata{k}(micnum).oasplcheck = fOverallSPL_freq(P);
-            testdata{k}(micnum).oasplfilt = fOverallSPL_freq(P_filt);
-            testdata{k}(micnum).oaspl3 = fOverallSPL_freq(P3);
-            
-% A-weighting
-            A = fAfilt(fvec);
-            dbA = db + A';
-            testdata{k}(micnum).oasplA = fOverallSPL_freq(Pref * 10.^(dbA / 20));
-            
-            A_filt = fAfilt(fvec_filt);
-            dbA_filt = db_filt + A_filt';
-            testdata{k}(micnum).oasplAfilt = fOverallSPL_freq(Pref * 10.^(dbA_filt / 20));
-            
-            A3 = fAfilt(testdata{k}(micnum).fc);
-            dbA3 = db3 + A3';
-            testdata{k}(micnum).oasplA3 = fOverallSPL_freq(Pref * 10.^(dbA3 / 20));
-            
-% Percieved loudness
-            testdata{k}(micnum).PL = f_PL(testdata{k}(micnum).fc, db3);
-            
-% Percieved noise level
-            testdata{k}(micnum).PNL = f_PNL(testdata{k}(micnum).fc, db3);
-    
-            fprintf('%s\n',['OASPL = ',num2str(testdata{k}(micnum).oaspl)])
+            [fvec_filt, mag_filt, ~] = f_oaspl_witherror(fs, x, 2*N/N_avg, N_avg, window, params);
+  
+%             fprintf('%s\n',['OASPL = ',num2str(testdata{k}(micnum).oaspl)])
         end
     end
     cd(pdir);
-    fprintf('\n\t')
+    fprintf('\n\t\n')
 end

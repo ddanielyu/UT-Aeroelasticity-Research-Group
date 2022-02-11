@@ -3,6 +3,6 @@ function oaspl = fOverallSPL_freq(Pvec)
 % P IN FREQ DOMAIN
 
 P_ref = 20E-6;
-rms_P = sqrt(nansum(Pvec.^2)/2);
+rms_P = sqrt(sum(Pvec.^2,'omitnan')/2);
 
-oaspl = 20*log10(rms_P / P_ref);
+oaspl = 20*log10(rms_P ./ P_ref);

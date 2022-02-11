@@ -43,6 +43,8 @@ warning off
 
 directory = '\Users\admin-local\Box\Chloe Lab Stuff\2021 Fall Bell Rotor\Outdoor';
 directory = '/Users/chloe/Box/Chloe Lab Stuff/2021 Fall Bell Rotor/Indoor';
+directory = '\Users\admin-local\Desktop\Research\02 Data\Streaming';
+
 
 rotor = input('Rotor type [ Uber CCR ]: ', 's');
 

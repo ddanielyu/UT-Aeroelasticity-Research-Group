@@ -15,7 +15,7 @@ function [xfilt,yfilt] = fOctaveFilter(fv,fy,N)
 
 
 %CREATE CENTER FREQUENCIES AND UPPER/LOWER FREQUENCIES
-oct =10; %beginning frequency
+oct =50; %beginning frequency
 a = 2^(1/N); %BASE 2
 % a = 10^(2/(10*N)); %BASE 10
 
@@ -41,6 +41,6 @@ yfilt = ones(size(f_c))';
 for n = 1:length(f_a) - 1
     [~,loc_f_a] = min(abs(fv - f_a(n)));
     [~,loc_f_b] = min(abs(fv - f_a(n+1)));
-    yfilt(n) = sqrt(nansum(fy(loc_f_a:loc_f_b).^2));
+    yfilt(n) = sqrt(sum(fy(loc_f_a:loc_f_b).^2,'omitnan'));
 end
 

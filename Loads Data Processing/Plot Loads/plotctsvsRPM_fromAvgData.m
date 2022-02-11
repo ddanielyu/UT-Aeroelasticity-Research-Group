@@ -13,7 +13,7 @@ for i = 1:length(AvgData_corr.avg_cps_inner)
 end
 
 %% INPUTS
-phi_des = 90; 
+phi_des = 2; 
 diffcol_des = 0; 
 
 c=4;
