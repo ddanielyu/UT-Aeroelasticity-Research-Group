@@ -15,11 +15,12 @@ load('colors.mat');
 
 %% Constants
 
-Torque_Trig = 10; %N-m spike from Nominal Torque to find phase sync trigger
+IQ_Trig = 9.5; %Apk spike from nominal IQ to find phase sync trigger
 
 source_dir = pwd; %directory of MATLAB scripts
 %% Inputs
 files_dir = uigetdir(); %directory of .csv data files
+motors = input('Single or Dual Motor [s/d]: ','s');
 GR = input('Gear Ratio: ');
 collective = input('Collective [deg]: ');
 
@@ -34,8 +35,8 @@ conditions = [54	29.88]; % [T(Farenh), % humidity, P(in.Hg)]
 % Check for phase sync or steady (torque pulse)
 fprintf('\nChecking for triggers...\n')
 for i = 1:length(StreamData.names)
-    nom_torque = mean(StreamData.Mz_inner{i});
-    if ismember(1,abs(StreamData.Mz_inner{i} - nom_torque) > Torque_Trig) 
+    nom_IQ = mean(StreamData.IQ{i});
+    if ismember(1,abs(StreamData.IQ{i} - nom_IQ) > IQ_Trig) 
         %Phase Sync DID occur
         if exist('phaseSync_test','var'); phaseSync_test{end+1} = StreamData.names{i};
         else; phaseSync_test = {StreamData.names{i}}; end
@@ -79,7 +80,7 @@ fprintf('\nRunning phase-sync processing...\n')
 if exist('phaseSync_test','var')
     offset = input('Offset Angle [deg]: ');
     
-    [PhaseSync] = runPhaseSync(StreamData,phaseSync_test,offset,Torque_Trig,GR);
+    [PhaseSync] = runPhaseSync(StreamData,phaseSync_test,offset,IQ_Trig,GR);
     
 end
 

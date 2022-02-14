@@ -36,13 +36,10 @@ clear all;
 %warning off
 
 %% INPUTS
-<<<<<<< Updated upstream
 directory = '\Users\admin-local\Box\Chloe Lab Stuff\2021 Spring Stacked Rotor\Acoustics\zc_15';
 directory = '\Users\admin-local\Box\Chloe Lab Stuff\2020 Fall Stacked Rotor\Acoustic Tests';
-=======
 directory = '../Fall2020AcousticData/';
 directory = '/Users/chloe/Box/Chloe Lab Stuff/2020 Fall Stacked Rotor/Acoustic Tests';
->>>>>>> Stashed changes
 
 addpath(pwd)
 inputs.doubling = 'y';

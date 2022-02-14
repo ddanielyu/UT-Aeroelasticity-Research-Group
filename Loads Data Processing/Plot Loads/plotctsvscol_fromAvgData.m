@@ -19,8 +19,8 @@ end
 
 
 %% INPUTS
-RPM_des = 1250; 
-phi_des = 1.625; 
+RPM_des = 1200; 
+phi_des = 2; 
 diffcol_des = 0; 
 
 c=4;
