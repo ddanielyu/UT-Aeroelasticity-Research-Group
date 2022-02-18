@@ -45,8 +45,8 @@ for i = 1:length(steady_test)
         Averages.rho{i}*(Averages.OMEGA{i}*Averages.R)^3;
     Averages.P_err{i} = Averages.cps_err{i}*Averages.sigma*pi*Averages.R^2*....
         Averages.rho{i}*(Averages.OMEGA{i}*Averages.R)^3;
-    Averages.P_est_avg{i} = AvgData.avg_IQ{idx_steady}*Kt/sqrt(2)*Averages.OMEGA{i};
-    Averages.P_est_err{i} = AvgData.err_IQ{idx_steady}*Kt/sqrt(2)*Averages.OMEGA{i};
+    Averages.Q_est_avg{i} = AvgData.avg_IQ{idx_steady}*Kt;
+    Averages.Q_est_err{i} = AvgData.err_IQ{idx_steady}*Kt;
     
 end
 fprintf('\nSteady Processing done.\n');

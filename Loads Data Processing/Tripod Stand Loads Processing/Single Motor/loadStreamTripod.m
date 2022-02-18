@@ -1,6 +1,8 @@
 function [MeanData,StreamData] = loadStreamTripod(mdata,MeanData,source_dir,files_dir,collective)
 %This function loads all streaming data files from loadFiles.m for the
 %2021-2022 Tripod Stand Testing
+% FEB 14, 2022 UPDATE: accommodates tripod 220212 Labview (streamed phase 3
+% and IQ, no analog trig, no rpm col)
 
 cd(files_dir);
 
@@ -23,10 +25,10 @@ aycol = 14;          % mag Ay column
 enccol = 15;         % encoder angle column
 curr1col = 16;       % current 1 column
 curr2col = 17;       % current 2 column
-curr3col = 18;       % current 3 column
-trigcol = 19;        % analog trigger column
-revcol = 20;         % revolution column
-rpmcol = 21;
+buscol = 18;         % bus current column
+curr3col = 19;       % current 3 column
+IQcol   = 20;        % IQ column
+revcol = 21;         % revolution column
 
 %% FIND NAMES OF STREAMING FILES AND ASSIGN OPERATING VARIABLES
 
@@ -87,7 +89,6 @@ for k = 1:nfiles
     StreamData.curr3{k} = [];
     StreamData.bus_curr{k} = [];
     StreamData.revolution{k} = [];
-    StreamData.trigger{k} = [];
     StreamData.nrevs{k} = [];
     
     fprintf('\t%s', ['- ' StreamData.names{k} ' ... ']);
@@ -110,13 +111,11 @@ for k = 1:nfiles
     StreamData.encoder{k} = abs(data{:,enccol});          %W
     StreamData.curr1{k} = data{:,curr1col};          %W
     StreamData.curr2{k} = data{:,curr2col};          %W
-    StreamData.curr3{k} = -(StreamData.curr1{k} +  StreamData.curr2{k});          %W
-    StreamData.IQ{k} = parkClarke(StreamData.curr1{k},StreamData.curr2{k},StreamData.curr3{k}); %Calc Quad Current
-    StreamData.bus_curr{k} = data{:,curr3col};          %W
+    StreamData.curr3{k} = data{:,curr3col};          %W
+    StreamData.IQ{k} = data{:,IQcol}; 
+    StreamData.bus_curr{k} = data{:,buscol};          %W
     StreamData.revolution{k} = data{:,revcol};       %X
-    StreamData.trigger{k} = data{:,trigcol};         %Q           
     StreamData.nrevs{k} = StreamData.revolution{k}(end);
-    StreamData.rpm{k} = data{:,rpmcol};
     
     fprintf('%s\n', 'Ok');
     

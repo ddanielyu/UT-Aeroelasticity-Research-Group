@@ -6,7 +6,7 @@ This processing code is a modification to the "LoadsProcessing.m" code, and
 essentially uses only fLoadData
 
 Written By: Matt Asper
-Date: 01 Dec 2021
+Date: 17 Feb 2022
 
 %}
 
@@ -17,13 +17,20 @@ load('colors.mat');
 
 IQ_Trig = 9.5; %Apk spike from nominal IQ to find phase sync trigger
 
-source_dir = pwd; %directory of MATLAB scripts
 %% Inputs
 files_dir = uigetdir(); %directory of .csv data files
 motors = input('Single or Dual Motor [s/d]: ','s');
 GR = input('Gear Ratio: ');
 collective = input('Collective [deg]: ');
+loads = input('Plot with loads? [y/n]: ','s');
 
+%% Change to correct directory for single vs dual motor
+if motors == 's'; cd('Single Motor'); 
+elseif motors == 'd'; cd('Dual Motor'); 
+elseif isempty(motors); cd('Tripod Pre-Feb 2022');
+end
+
+source_dir = pwd; %directory of MATLAB scripts
 %% Load Data
 conditions = [54	29.88]; % [T(Farenh), % humidity, P(in.Hg)]
 
@@ -69,6 +76,16 @@ AvgData = fTotalAvg(RevData,SortedData,StreamData);
 
 
 %% Process Steady Data
+%clear loads to avoid corrupting plots
+if loads == 'n'
+    for i = 1:length(AvgData.avg_cts_inner)
+        AvgData.avg_cts_inner{i} = NaN;
+        AvgData.err_cts_inner{i} = NaN;
+        AvgData.avg_cps_inner{i} = NaN;
+        AvgData.err_cps_inner{i} = NaN;
+    end
+end
+
 fprintf('\nProcessing steady-only data...\n')
 
 if exist('steady_test','var')
@@ -82,7 +99,18 @@ if exist('phaseSync_test','var')
     
     [PhaseSync] = runPhaseSync(StreamData,phaseSync_test,offset,IQ_Trig,GR);
     
+    %clear loads to avoid corrupting plots
+    if loads == 'n'
+        for i = 1:length(PhaseSync.T_avg)
+            PhaseSync.T_avg{i} = NaN;
+            PhaseSync.T_err{i} = NaN;
+            PhaseSync.Torque_avg{i} = NaN;
+            PhaseSync.Torque_err{i} = NaN;
+        end
+    end
+    
 end
+
 
 %% Load Simulink
 % plotsim = input('Plot with Sim [y/n]: ','s');

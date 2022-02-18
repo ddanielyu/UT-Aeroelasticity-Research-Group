@@ -1,12 +1,11 @@
 function [StreamData, SortedData] = fSortStream(StreamData)
 %{
-EDITED ON: 02/17/2022
+EDITED ON: 01/12/2022
 EDITED BY: MATT ASPER
 
-Details: Updated Pre-Feb 2022 Tripod Loads Processing Code where phase 3
-and IQ current is in stream data file. No rpm in stream (only azimuth).
-Rotor geometry is COAX.
-
+Details: Updated Post-Aug 2021 Tripod Loads Processing Code to create a bus
+current variable and changed current 3 from bus current to the third phase
+current. Also added the quadrature current, IQ variable.
 
 %}
 %INPUTS
@@ -51,14 +50,14 @@ Rotor geometry is COAX.
 
 %% DEFINE CONSTANTS
 Nbits = 12;       % number of bits in the 
-StreamData.R = 1.016;
+StreamData.R = 1.108;
 c = 0.08;
 Nblade = 2;
 StreamData.sigma = StreamData.R*c*Nblade / (pi*StreamData.R^2);
 
 SR = 10000; % SAMPLE RATE
 Naz = 1000;   % dpsi = 0.36 deg
-enc = 'y';
+enc = input('\nEncoder? [Y/N] ','s');
 
 %% CALCULATE OMEGA FROM 1/Rev
 for k = 1:length(StreamData.names)

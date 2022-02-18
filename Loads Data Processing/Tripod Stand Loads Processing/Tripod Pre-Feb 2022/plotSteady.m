@@ -1,10 +1,9 @@
 function [f1,f2,f3,f4] = plotSteady(Averages,collective)
 %{
-EDITED ON; 02/17/2022
+EDITED ON; 01/12/2022
 EDITED BY: MATT ASPER
 
-DETAILS:  This update plots estimated motor toque with IQ and plots with
-COAX BEMT.
+DETAILS:  This update plots estimated motor toque with IQ
 %}
 
 %Run this function to plot steady tripod 2021-2022 data from Averages
@@ -15,7 +14,7 @@ load('colors.mat')
 %% Load Prediction
 
 %call BEMT (Ct,Cp,theta)
-BEMT = load('COAX_BEMTdata.mat');
+BEMT = load('BEMTdata_rev2.mat');
 
 %create predicted Thrust and Power curves
 RPM = linspace(0,1200,2000);
@@ -32,7 +31,6 @@ plot(BEMT.theta,BEMT.Ct,'k-','Linewidth',1.5)
 errorbar(ones(1,length(Averages.cts_avg))*collective,cell2mat(Averages.cts_avg)*Averages.sigma,cell2mat(Averages.cts_err)*Averages.sigma,'^','color',colors{1})
 xlabel('Collective, $\theta_o$ [deg]')
 ylabel('Thrust Coefficient, $C_T$ [-]')
-legend('Prediction','Experiment')
 formatfig
 hold off
 
@@ -42,7 +40,6 @@ plot(BEMT.theta,BEMT.Cp,'k-','Linewidth',1.5)
 errorbar(ones(1,length(Averages.cps_avg))*collective,cell2mat(Averages.cps_avg)*Averages.sigma,cell2mat(Averages.cps_err)*Averages.sigma,'^','color',colors{1})
 xlabel('Collective, $\theta_o$ [deg]')
 ylabel('Power Coefficient, $C_P$ [-]')
-legend('Prediction','Experiment')
 formatfig
 hold off
 
@@ -53,7 +50,6 @@ errorbar(cell2mat(Averages.OMEGA)*60/2/pi,cell2mat(Averages.T_avg),cell2mat(Aver
 xlabel('Rotor Speed, $\Omega$ [RPM]')
 ylabel('Thrust [N]')
 xlim([min(cell2mat(Averages.OMEGA)*60/2/pi) max(cell2mat(Averages.OMEGA)*60/2/pi)])
-legend('Prediction','Experiment')
 formatfig
 hold off
 
@@ -61,11 +57,9 @@ f4 = figure('Name','Steady Power');
 hold on
 plot(RPM,P_BEMT,'k-','Linewidth',1.5)
 errorbar(cell2mat(Averages.OMEGA)*60/2/pi,cell2mat(Averages.P_avg),cell2mat(Averages.P_err),'^','color',colors{1})
-errorbar(cell2mat(Averages.OMEGA)*60/2/pi,cell2mat(Averages.P_est_avg),cell2mat(Averages.P_est_err),'^','color',colors{2})
 xlabel('Rotor Speed, $\Omega$ [RPM]')
 ylabel('Power [W]')
 xlim([min(cell2mat(Averages.OMEGA)*60/2/pi) max(cell2mat(Averages.OMEGA)*60/2/pi)])
-legend('Prediction','Experiment','IQ-Estimated')
 formatfig
 hold off
 
