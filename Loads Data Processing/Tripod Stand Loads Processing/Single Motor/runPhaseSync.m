@@ -61,7 +61,7 @@ for i = 1:length(phaseSync_test)
         start    = find((abs(StreamData.Mz_inner{idx_PS}) > est_avg_Mz + Torque_Trig),1);          %first index at which trig occurs
     end
 
-    rpm_motor0  = mean(StreamData.rpm{idx_PS}(2:start)*GR);                         %avg motor rpm prior to trig
+    rpm_motor0  = mean(StreamData.OMEGA{idx_PS}(2:start)*GR)*60/2/pi;                         %avg motor rpm prior to trig
     dazds       = rpm_motor0/60*360/Fs;                                     %rate of change in az over samples
     az_trig     = dazds*start;                                              %estimated az at the trig location [deg]
     ref_angle{idx_PS}   = dazds*(0:length(StreamData.encoder{idx_PS})-1);                                            %time array of entire data set up to trigger
