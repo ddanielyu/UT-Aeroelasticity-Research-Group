@@ -1,4 +1,4 @@
-function [Q,D] = parkClarke(A,B,C)
+function Q = parkClarke(A,B,C)
 %This function calculates the quadrature (Q) current from A,
 %B, and C phase currents by assuming all current produced from controller
 %is IQ

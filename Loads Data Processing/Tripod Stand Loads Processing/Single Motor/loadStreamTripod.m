@@ -109,11 +109,14 @@ for k = 1:nfiles
     StreamData.ax{k} = data{:,axcol};                %M
     StreamData.ay{k} = data{:,aycol};                %N
     StreamData.encoder{k} = abs(data{:,enccol});          %W
+    StreamData.unwrap{k} = unwrap_az(StreamData.encoder{k}); %unwrap the azimuth
     StreamData.curr1{k} = data{:,curr1col};          %W
     StreamData.curr2{k} = data{:,curr2col};          %W
     StreamData.curr3{k} = -1*(StreamData.curr1{k} + StreamData.curr2{k});          %W
-    [StreamData.IQ{k},~] = parkClarke(StreamData.curr1{k},StreamData.curr2{k},StreamData.curr3{k}); 
+    StreamData.IQ{k} = parkClarke(StreamData.curr1{k},StreamData.curr2{k},StreamData.curr3{k}); 
     StreamData.bus_curr{k} = data{:,buscol};          %W
+    StreamData.rpm{k} = (StreamData.unwrap{k}(2:end) - StreamData.unwrap{k}(1:end-1))/.0001/360*60;
+    StreamData.rpm{k} = fcleanup(StreamData.rpm{k}, 'smoothdata', 'loess', 700);
     StreamData.revolution{k} = data{:,revcol};       %X
     StreamData.nrevs{k} = StreamData.revolution{k}(end);
     
