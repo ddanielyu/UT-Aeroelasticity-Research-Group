@@ -11,12 +11,12 @@ function plot_areaerrorbar(x_axis,y_mean,y_err,color)
     
     x_vector = [x_axis,fliplr(x_axis)];
     patch = fill(x_vector, [y_mean+y_err,fliplr(y_mean-y_err)], options.color_area);
-%     hold on
+    hold on
     set(patch, 'edgecolor', 'none');
     set(patch, 'FaceAlpha', options.alpha);
     mean_plot = plot(x_axis, y_mean, '-','color', color, ...
         'LineWidth', options.line_width);
     set(mean_plot,'HandleVisibility','off');
-%     hold off
+    hold off
     
 end
