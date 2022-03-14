@@ -74,16 +74,6 @@ for i = 1:length(phaseSync_test)
     
     start = start - 500; %adjust for delay in rpm trig due to smoothing
     
-    %unwrap encoder measurements
-    StreamData.unwrap_enc{idx_PS}(1) = 0;
-    for ii = 2:length(StreamData.encoder{idx_PS}) 
-        if StreamData.encoder{idx_PS}(ii) > StreamData.encoder{idx_PS}(ii-1)
-            StreamData.unwrap_enc{idx_PS}(ii) = StreamData.unwrap_enc{idx_PS}(ii-1) + (StreamData.encoder{idx_PS}(ii) - StreamData.encoder{idx_PS}(ii-1));
-        elseif StreamData.encoder{idx_PS}(ii) < StreamData.encoder{idx_PS}(ii-1)
-            StreamData.unwrap_enc{idx_PS}(ii) = StreamData.unwrap_enc{idx_PS}(ii-1) + (StreamData.encoder{idx_PS}(ii) + (360 - StreamData.encoder{idx_PS}(ii-1)));
-        end
-    end
-    
     rpm_motor0  = mean(StreamData.rpm{idx_PS}(1:start));                         %avg motor rpm prior to trig
     dazds       = rpm_motor0/60*360/Fs;                                     %rate of change in az over samples
     az_trig     = dazds*start;                                              %estimated az at the trig location [deg]
@@ -96,16 +86,16 @@ for i = 1:length(phaseSync_test)
         comm_angle{idx_PS}(idx_ref) = comm_angle{idx_PS}(idx_ref) + slew/Fs*(idx_ref-start);
     end
     comm_angle{idx_PS}(start+samples+1:end) = comm_angle{idx_PS}(start+samples+1:end) + offset;
-    ref_angle{idx_PS}   =  StreamData.unwrap_enc{idx_PS} - ref_angle{idx_PS};
+    ref_angle{idx_PS}   =  StreamData.unwrap{idx_PS} - ref_angle{idx_PS};
 
 
     %calc angle err
     idx = 1;
     while idx <= length(comm_angle{idx_PS})
-        StreamData.angle_err{idx_PS}(idx) = comm_angle{idx_PS}(idx) - StreamData.unwrap_enc{idx_PS}(idx);
+        StreamData.angle_err{idx_PS}(idx) = comm_angle{idx_PS}(idx) - StreamData.unwrap{idx_PS}(idx);
         idx = idx+1;
     end
-    hi = StreamData.unwrap_enc{idx_PS} - StreamData.unwrap_enc{idx_PS}(start); 
+    hi = StreamData.unwrap{idx_PS} - StreamData.unwrap{idx_PS}(start); 
     
     if (start - pre_trig*Fs) < 0; idx_trig = 1:(start + post_trig*Fs);
     else; idx_trig = (start - pre_trig*Fs):(start + post_trig*Fs); %index .25s pre-trig and 1s post-trig
