@@ -20,7 +20,6 @@ Trig = 6; %rpm spike from nominal rpm to find phase sync trigger
 %% Inputs
 files_dir = uigetdir(); %directory of .csv data files
 motors = input('Single or Dual Motor [s/d]: ','s');
-GR = input('Gear Ratio: ');
 loads = input('Plot with loads? [y/n]: ','s');
 
 %% Change to correct directory for single vs dual motor
@@ -33,9 +32,12 @@ source_dir = pwd; %directory of MATLAB scripts
 %% Load Data
 conditions = [54	29.88]; % [T(Farenh), % humidity, P(in.Hg)]
 
-[mdata,MeanData] = loadFiles(source_dir,files_dir,conditions); %load files
+[mdata,MeanData,steady_tests,phaseSync_tests] = loadFiles(source_dir,files_dir,conditions); %load files
 collective = mdata.MeanCollective(1);
 [MeanData,StreamData] = loadStreamTripod(mdata,MeanData,source_dir,files_dir,collective); %load streamdata
+
+%Extract variables
+GR = mdata.GearRatio(1);
 
 %% Organize Steady and Phase Sync Tests
 
@@ -123,17 +125,19 @@ end
 %% Plotting
 close all; clc;
 
-if exist('steady_test','var'); [f1,f2,f3,f4] = plotSteady(Averages,collective); end
+if exist('steady_test','var') && length(steady_test) ~= 1; [f1,f2,f3,f4] = plotSteady(Averages,collective); end
 if exist('phaseSync_test','var'); [f5,f6] = plotPhaseSync(PhaseSync,phaseSync_test,loads); end
 
 
 %% Saving
 save_dir = uigetdir();
 save(fullfile(save_dir,'Data'),'PhaseSync','Averages');
-% saveas(f1,fullfile(save_dir,f1.Name),'jpg')
-% saveas(f2,fullfile(save_dir,f2.Name),'jpg')
-% saveas(f3,fullfile(save_dir,f3.Name),'jpg')
-% saveas(f4,fullfile(save_dir,f4.Name),'jpg')
+if exist('f1','var')
+    saveas(f1,fullfile(save_dir,f1.Name),'jpg')
+    saveas(f2,fullfile(save_dir,f2.Name),'jpg')
+    saveas(f3,fullfile(save_dir,f3.Name),'jpg')
+    saveas(f4,fullfile(save_dir,f4.Name),'jpg')
+end
 saveas(f5,fullfile(save_dir,f5.Name),'jpg')
 saveas(f6,fullfile(save_dir,f6.Name),'jpg')
 
