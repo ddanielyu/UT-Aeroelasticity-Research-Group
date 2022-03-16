@@ -155,9 +155,15 @@ for k = 1:length(StreamData.names)
         b = SortedData.binsize1{k}(n);
         
         SortedData.check1{k}(n,1:b) = StreamData.revolution1{k}(count1:count1-1+b)';
-        
-        %"zero" enc for each rev.
-        az = StreamData.encoder1{k}(count1:count1-1+b)' - StreamData.encoder1{k}(count1); 
+
+        % if the rotor is not turning no need to interpolate
+        if enc == 'Y'||enc == 'y'
+            az = StreamData.encoder1{k}(count1:count1-1+b)';
+        else 
+            az = [360/b:360/b:360];
+%                 StreamData.encoder{k}(count:count-1+b) =[360/b:360/b:360]; 
+        end
+
         
         % SortedData.encoder{k}(n,1:b) = StreamData.encoder{k}(count:count-1+b)';
         % if binsize is greater than maximum readable by encoder, decimate
@@ -197,9 +203,6 @@ for k = 1:length(StreamData.names)
             SortedData.bus_curr{k}(n,:) = interp1(az, StreamData.bus_curr{k}(count1:dcm8:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
 
             SortedData.IQ1{k}(n,:) = interp1(az, StreamData.IQ1{k}(count1:dcm8:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
-            
-            SortedData.index{k}(n,:) = interp1(az, StreamData.index{k}(count1:dcm8:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
-            
         else
             SortedData.encoder1{k}(n,1:b) = az;
             azdt = circshift(az,-1);
@@ -234,8 +237,6 @@ for k = 1:length(StreamData.names)
             SortedData.bus_curr{k}(n,:) = interp1(az, StreamData.bus_curr{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
 
             SortedData.IQ1{k}(n,:) = interp1(az, StreamData.IQ1{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
-            
-            SortedData.index{k}(n,:) = interp1(az, StreamData.index{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
         end
         
         SortedData.azimuth1{k} = 0:1/b*360:360*(1-1/b);
@@ -255,7 +256,6 @@ for k = 1:length(StreamData.names)
         SortedData.curr3{k}(n,:) = StreamData.curr3{k}(count1:count1-1+b)';
         SortedData.bus_curr{k}(n,:) = StreamData.bus_curr{k}(count1:count1-1+b)';
         SortedData.IQ1{k}(n,:) = StreamData.IQ1{k}(count1:count1-1+b)';
-        SortedData.index{k}(n,:) = StreamData.index{k}(count1:count1-1+b)';
         
         count1 = count1+b;
                 
@@ -270,8 +270,12 @@ for k = 1:length(StreamData.names)
         
         SortedData.check2{k}(n,1:b) = StreamData.revolution2{k}(count2:count2-2+b)';
 
-        %"zero" enc for each rev.
-        az = StreamData.encoder2{k}(count2:count2-1+b)' - StreamData.encoder2{k}(count2);
+        % if the rotor is not turning no need to interpolate
+        if enc == 'Y'||enc == 'y'
+            az = StreamData.encoder2{k}(count2:count2-1+b)';
+        else 
+            az = [360/b:360/b:360];
+        end
 
         % SortedData.encoder{k}(n,1:b) = StreamData.encoder{k}(count:count-1+b)';
         % if binsize is greater than maximum readable by encoder, decimate
@@ -378,7 +382,6 @@ for k = 1:length(StreamData.names)
             SortedData.bus_curr{k}(1,:) = [];
             SortedData.IQ1{k}(1,:) = [];
             SortedData.IQ2{k}(1,:) = [];
-            SortedData.index{k}(1,:) = [];
     
     OMEGA1 = StreamData.OMEGA1{k}(2:length(StreamData.OMEGA1{k}));
     OMEGA2 = StreamData.OMEGA2{k}(2:length(StreamData.OMEGA2{k}));

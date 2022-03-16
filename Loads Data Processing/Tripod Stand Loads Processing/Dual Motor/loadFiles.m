@@ -1,4 +1,4 @@
-function [mdata,MeanData,steady_letters,phase_sync_letters] = loadFiles(source_dir,files_dir,conditions)
+function [mdata,MeanData,steady_test,phaseSync_test] = loadFiles(source_dir,files_dir,conditions)
 %This scripts loads all the data files for Tripod Stand 2021-2022 data
 %processing
 
@@ -80,6 +80,35 @@ for im = 1:length(MeanData.names) % need to fix reading multiple mean files
         
     mdata = vertcat(mdata, MeanData.data{im});
 end    
+
+%% Organize Steady and Phase Sync Tests
+steady_test = [];
+phaseSync_test = [];
+
+ij = 1; %steady test counter
+ji = 1; %phase sync test counter
+
+for i = 1:length(mdata{:,'Path'})
+    %steady
+    for ii = 1:length(steady_letters)
+        if contains(mdata{i,'Path'},strcat('test_',steady_letters{ii}))
+            steady_test{ij} = mdata{i,'Path'};
+            ij = ij + 1;
+        end
+    end
+    
+    %phase-sync
+    for jj = 1:length(phase_sync_letters)
+        if contains(mdata{i,'Path'},strcat('test_',phase_sync_letters{jj}))
+            phaseSync_test{ji} = mdata{i,'Path'};
+            ji = ji + 1;
+        end
+    end
+end
+
+for i = 1:length(phaseSync_tests)
+    
+end
 
 cd(source_dir);
 

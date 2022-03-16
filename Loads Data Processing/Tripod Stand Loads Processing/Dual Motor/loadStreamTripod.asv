@@ -144,7 +144,7 @@ for k = 1:nfiles
     
     %"zero" encoders so each encoder starts at 0 deg
     StreamData.encoder1{k} = StreamData.encoder1{k} - StreamData.encoder1{k}(1);
-    StreamData.encoder2{k} = StreamData.encoder2{k} - StreamData.encoder2{k}(1);
+    StreamData.encoder1{k}
     
     %% CREATE REV COUNTER
 %     revnum = 0;

@@ -1,11 +1,9 @@
 function AvgData = fTotalAvg(RevData,SortedData,StreamData)
 %{
-EDITED ON: 01/12/2022
+EDITED ON: 03/15/2022
 EDITED BY: MATT ASPER
 
-Details: Updated Post-Aug 2021 Tripod Loads Processing Code to create a bus
-current variable and changed current 3 from bus current to the third phase
-current. Also added the quadrature current, IQ variable.
+Details: Dual Motor Processing Code. Accommodates 220315 Dual Motor Labview
 
 %}
 % CALCULATES TOTAL AVERAGE AND ERROR FOR STREAM DATA FILE

@@ -201,14 +201,8 @@ for k = 1:length(SortedData.Fx_inner)
     RevData.ms_curr1{k} = nanmean(SortedData.curr1{k}');
     RevData.ms_curr2{k} = nanmean(SortedData.curr2{k}');
     RevData.ms_curr3{k} = nanmean(SortedData.curr3{k}');
-    RevData.ms_curr4{k} = nanmean(SortedData.curr4{k}');
-    RevData.ms_curr5{k} = nanmean(SortedData.curr5{k}');
-    RevData.ms_curr6{k} = nanmean(SortedData.curr6{k}');
     RevData.ms_bus_curr{k} = nanmean(SortedData.bus_curr{k}');
-    RevData.ms_IQ1{k} = nanmean(SortedData.IQ1{k}');
-    RevData.ms_IQ2{k} = nanmean(SortedData.IQ2{k}');
-    
-    RevData.ms_index{k} = nanmean(SortedData.index{k}');
+    RevData.ms_IQ{k} = nanmean(SortedData.IQ{k}');
     
     RevData.ms_cts_outer{k} = nanmean(SortedData.cts_outer{k}');
     RevData.ms_cps_outer{k} = nanmean(SortedData.cps_outer{k}');
