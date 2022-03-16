@@ -11,8 +11,8 @@ Cps_avg, Cps_err
 T_avg, T_err
 P_avg, P_err
 FM_up,FM_lo,FM_tot
-P1_est_avg, P1_est_err [estimated servo ROTOR Power]
-P2_est_avg, P2_est_err [estimated follower ROTOR Power]
+Q1_est_avg, Q1_est_err [estimated servo ROTOR torque]
+Q2_est_avg, Q2_est_err [estimated follower ROTOR torque]
 omega1 [rad/s], servo rotor
 omega2 [rad/s], follower rotor
 index
@@ -84,16 +84,17 @@ for i = 1:length(steady_test)
     
     
     %total
-    Averages.T_avg{i} = Averages.T_avg_lo{i} + Averages.T_avg_up{i};
-    Averages.T_err{i} = Averages.T_err_lo{i} + Averages.T_err_up{i};
-    Averages.P_avg{i} = Averages.P_avg_lo{i} + Averages.P_avg_up{i};
-    Averages.P_err{i} = Averages.P_err_lo{i} + Averages.P_err_up{i};
-    Averages.P_est_avg{i} = Averages.P_est_avg_lo{i} + Averages.P_est_avg_up{i};
-    Averages.P_est_err{i} = Averages.P_est_err_lo{i} + Averages.P_est_err_up{i};
+    Averages.T_avg{i} = Averages.cts_up_avg{i}*Averages.sigma*pi*Averages.R^2*....
+        Averages.rho{i}*(Averages.OMEGA1{i}*Averages.R)^2;
+    Averages.T_err{i} = Averages.cts_up_err{i}*Averages.sigma*pi*Averages.R^2*....
+        Averages.rho{i}*(Averages.OMEGA1{i}*Averages.R)^2;
+    Averages.P_avg{i} = Averages.cps_up_avg{i}*Averages.sigma*pi*Averages.R^2*....
+        Averages.rho{i}*(Averages.OMEGA1{i}*Averages.R)^3;
+    Averages.P_err{i} = Averages.cps_up_err{i}*Averages.sigma*pi*Averages.R^2*....
+        Averages.rho{i}*(Averages.OMEGA1{i}*Averages.R)^3;
+    Averages.P_est_avg{i} = AvgData.avg_IQ1{idx_steady}*Kt/sqrt(2)*Averages.OMEGA1{i};
+    Averages.P_est_err{i} = AvgData.err_IQ1{idx_steady}*Kt/sqrt(2)*Averages.OMEGA1{i};
     
-    %index
-    Averages.index_avg{i} = AvgData.avg_index{idx_steady};
-    Averages.index_err{i} = AvgData.err_index{idx_steady};
 end
 fprintf('\nSteady Processing done.\n');
 

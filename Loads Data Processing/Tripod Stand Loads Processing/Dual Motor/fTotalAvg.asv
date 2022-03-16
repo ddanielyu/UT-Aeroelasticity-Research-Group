@@ -58,8 +58,6 @@ for k = 1:length(StreamData.names)
     AvgData.avg_ctcp{k} = nanmean(RevData.avg_ctcp{k});
     AvgData.avg_IQ1{k} = nanmean(RevData.avg_IQ1{k});
     AvgData.avg_IQ2{k} = nanmean(RevData.avg_IQ2{k});
-    
-    AvgData.avg_index{k} = nanmean(RevData.avg_index{k});
 
     cts_bias1 = 18.75 / ct_den1 / StreamData.sigma;
     cps_bias1 = 1.5 / cq_den1 / StreamData.sigma;
@@ -68,7 +66,6 @@ for k = 1:length(StreamData.names)
     
     I_bias = 1.5; %standard 1% error of 150 A sensor
     IQ_bias = sqrt(2/3)*sqrt(3*I_bias^2); %error propagation of CR_150A current sensors
-    az_bias = 360/1024/2; %1024 bits/rev--> standard error half of smallest unit
     
     % standard error of the mean
     % se = std(means)/sqrt(Nrev)
@@ -97,10 +94,8 @@ for k = 1:length(StreamData.names)
     AvgData.err_cps_total{k} = 1.96* sqrt( std(RevData.ms_cps_outer{k}+RevData.ms_cps_inner{k})^2 ...
     + (cps_bias1)^2 + (cps_bias2)^2 ) / sqrt(SortedData.nrevs1{k});
 
-    AvgData.err_IQ1{k} = 1.96* sqrt( std(RevData.ms_IQ1{k})^2 + IQ_bias^2)/sqrt(SortedData.nrevs1{k});
-    AvgData.err_IQ2{k} = 1.96* sqrt( std(RevData.ms_IQ2{k})^2 + IQ_bias^2)/sqrt(SortedData.nrevs2{k});
-    
-    AvgData.err_index{k} = 1.96* sqrt( std(RevData.ms_index{k})^2 + az_bias^2)/sqrt(SortedData.nrevs1{k});
+    AvgData.err_IQ1{k} = 1.96* sqrt( std(RevData.ms_IQ1{k})^2 + IQ_bias^2)/sqrt(SortedData.nrevs{k});
+    AvgData.err_IQ2{k} = 1.96* sqrt( std(RevData.ms_IQ{k})^2 + IQ_bias^2)/sqrt(SortedData.nrevs{k});
     
     fprintf('%s\n', ' Ok');
 end
