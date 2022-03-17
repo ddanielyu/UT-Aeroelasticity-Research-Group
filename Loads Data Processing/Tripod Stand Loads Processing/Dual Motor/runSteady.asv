@@ -11,8 +11,8 @@ Cps_avg, Cps_err
 T_avg, T_err
 P_avg, P_err
 FM_up,FM_lo,FM_tot
-Q1_est_avg, Q1_est_err [estimated servo ROTOR torque]
-Q2_est_avg, Q2_est_err [estimated follower ROTOR torque]
+P1_est_avg, P1_est_err [estimated servo ROTOR Power]
+P2_est_avg, P2_est_err [estimated follower ROTOR Power]
 omega1 [rad/s], servo rotor
 omega2 [rad/s], follower rotor
 index
@@ -29,34 +29,45 @@ for i = 1:length(steady_test)
     %Find steady file in StreamData
     idx_steady = cellfun(@(x) strcmp(x, steady_test{i}), StreamData.names, 'UniformOutput', 1);
 
+    Averages.rho{i} = StreamData.rho{idx_steady};
+    Averages.OMEGA1{i} = mean(StreamData.OMEGA1{idx_steady}(2:length(StreamData.OMEGA1{idx_steady})));
+    Averages.OMEGA2{i} = mean(StreamData.OMEGA2{idx_steady}(2:length(StreamData.OMEGA2{idx_steady})));
+    Averages.R = StreamData.R;
+    Averages.sigma = StreamData.sigma;
+    
     %Create Averages structure
     %upper
     Averages.cts_up_avg{i} = AvgData.avg_cts_inner{idx_steady};
     Averages.cts_up_err{i} = AvgData.err_cts_inner{idx_steady};
     Averages.cps_up_avg{i} = AvgData.avg_cps_inner{idx_steady};
     Averages.cps_up_err{i} = AvgData.err_cps_inner{idx_steady};
+    Averages.cps_up_est_avg{i} = AvgData.avg_IQ1{idx_steady}*Kt/sqrt(2)*Averages.OMEGA1{i}/...
+        (Averages.sigma*pi*Averages.R^2*Averages.rho{i}*(Averages.OMEGA1{i}*Averages.R)^3);
+    Averages.cps_up_est_err{i} = AvgData.err_IQ1{idx_steady}*Kt/sqrt(2)*Averages.OMEGA1{i}/...
+        (Averages.sigma*pi*Averages.R^2*Averages.rho{i}*(Averages.OMEGA1{i}*Averages.R)^3);
+    
     %lower
     Averages.cts_lo_avg{i} = AvgData.avg_cts_outer{idx_steady};
     Averages.cts_lo_err{i} = AvgData.err_cts_outer{idx_steady};
     Averages.cps_lo_avg{i} = AvgData.avg_cps_outer{idx_steady};
     Averages.cps_lo_err{i} = AvgData.err_cps_outer{idx_steady};
+    Averages.cps_lo_est_avg{i} = AvgData.avg_IQ2{idx_steady}*Kt/sqrt(2)*Averages.OMEGA2{i}/...
+        (Averages.sigma*pi*Averages.R^2*Averages.rho{i}*(Averages.OMEGA2{i}*Averages.R)^3);
+    Averages.cps_lo_est_err{i} = AvgData.err_IQ2{idx_steady}*Kt/sqrt(2)*Averages.OMEGA2{i}/...
+        (Averages.sigma*pi*Averages.R^2*Averages.rho{i}*(Averages.OMEGA2{i}*Averages.R)^3);
+    
     %total
-    Averages.cts_avg{i} = mean(Averages.cts_up_avg{i},Averages.cts_lo_avg{i});
-    Averages.cts_err{i} = mean(Averages.cts_up_err{i},Averages.cts_lo_err{i});
-    Averages.cps_avg{i} = mean(Averages.cps_up_avg{i},Averages.cps_lo_avg{i});
-    Averages.cps_err{i} = mean(Averages.cps_up_err{i},Averages.cps_lo_err{i});
+    Averages.cts_avg{i} = mean(cell2mat(Averages.cts_up_avg{i}),cell2mat(Averages.cts_lo_avg{i}));
+    Averages.cts_err{i} = mean(cell2mat(Averages.cts_up_err{i}),cell2mat(Averages.cts_lo_err{i}));
+    Averages.cps_avg{i} = mean(cell2mat(Averages.cps_up_avg{i}),cell2mat(Averages.cps_lo_avg{i}));
+    Averages.cps_err{i} = mean(cell2mat(Averages.cps_up_err{i}),cell2matAverages.cps_lo_err{i});
+    Averages.cps_est_avg{i} = mean(Averages.cps_up_est_avg{i},Averages.cps_lo_est_avg{i});
+    Averages.cps_est_err{i} = mean(Averages.cps_up_est_err{i},Averages.cps_lo_est_err{i});
     
     %FM
     Averages.FM_lo{i} = AvgData.FM_avg_outer{idx_steady}; Averages.FM_err_lo{i} = AvgData.err_FM_outer{idx_steady};
     Averages.FM_up{i} = AvgData.FM_avg_inner{idx_steady}; Averages.FM_err_up{i} = AvgData.err_FM_inner{idx_steady};
     Averages.FM_tot{i}= AvgData.FM_avg_tot{idx_steady}; Averages.FM_err_tot{i} = AvgData.err_FM_tot{idx_steady};
-    
-    
-    Averages.rho{i} = StreamData.rho{idx_steady};
-    Averages.OMEGA1{i} = mean(StreamData.OMEGA1{idx_steady}(2:length(StreamData.OMEGA1{idx_steady})));
-    Averages.OMEGA2{i} = mean(StreamData.OMEGA2{idx_steady}(2:length(StreamData.OMEGA2{idx_steady})));
-    Averages.R = StreamData.R;
-    Averages.sigma = StreamData.sigma;
     
     %upper
     Averages.T_avg_up{i} = Averages.cts_up_avg{i}*Averages.sigma*pi*Averages.R^2*....
@@ -84,17 +95,16 @@ for i = 1:length(steady_test)
     
     
     %total
-    Averages.T_avg{i} = Averages.cts_up_avg{i}*Averages.sigma*pi*Averages.R^2*....
-        Averages.rho{i}*(Averages.OMEGA1{i}*Averages.R)^2;
-    Averages.T_err{i} = Averages.cts_up_err{i}*Averages.sigma*pi*Averages.R^2*....
-        Averages.rho{i}*(Averages.OMEGA1{i}*Averages.R)^2;
-    Averages.P_avg{i} = Averages.cps_up_avg{i}*Averages.sigma*pi*Averages.R^2*....
-        Averages.rho{i}*(Averages.OMEGA1{i}*Averages.R)^3;
-    Averages.P_err{i} = Averages.cps_up_err{i}*Averages.sigma*pi*Averages.R^2*....
-        Averages.rho{i}*(Averages.OMEGA1{i}*Averages.R)^3;
-    Averages.P_est_avg{i} = AvgData.avg_IQ1{idx_steady}*Kt/sqrt(2)*Averages.OMEGA1{i};
-    Averages.P_est_err{i} = AvgData.err_IQ1{idx_steady}*Kt/sqrt(2)*Averages.OMEGA1{i};
+    Averages.T_avg{i} = Averages.T_avg_lo{i} + Averages.T_avg_up{i};
+    Averages.T_err{i} = Averages.T_err_lo{i} + Averages.T_err_up{i};
+    Averages.P_avg{i} = Averages.P_avg_lo{i} + Averages.P_avg_up{i};
+    Averages.P_err{i} = Averages.P_err_lo{i} + Averages.P_err_up{i};
+    Averages.P_est_avg{i} = Averages.P_est_avg_lo{i} + Averages.P_est_avg_up{i};
+    Averages.P_est_err{i} = Averages.P_est_err_lo{i} + Averages.P_est_err_up{i};
     
+    %index
+    Averages.index_avg{i} = AvgData.avg_index{idx_steady};
+    Averages.index_err{i} = AvgData.err_index{idx_steady};
 end
 fprintf('\nSteady Processing done.\n');
 

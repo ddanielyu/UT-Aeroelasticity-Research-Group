@@ -74,33 +74,33 @@ for k = 1:length(StreamData.names)
     % se = std(means)/sqrt(Nrev)
     % multiply by 1.96 to get 95% CI
     AvgData.err_cts_outer{k} = 1.96* sqrt( std(RevData.ms_cts_outer{k})^2 + cts_bias2^2 )...
-        / sqrt(SortedData.nrevs2{k});
+        / sqrt(SortedData.nrev2{k});
     AvgData.err_cps_outer{k} = 1.96* sqrt( std(RevData.ms_cps_outer{k})^2 + cps_bias2^2 )...
-        / sqrt(SortedData.nrevs2{k});
+        / sqrt(SortedData.nrev2{k});
     AvgData.err_cts_inner{k} = 1.96* sqrt( std(RevData.ms_cts_inner{k})^2 + cts_bias1^2 )...
-        / sqrt(SortedData.nrevs1{k});
+        / sqrt(SortedData.nrev1{k});
     AvgData.err_cps_inner{k} = 1.96* sqrt( std(RevData.ms_cps_inner{k})^2 + cps_bias1^2 )...
-        / sqrt(SortedData.nrevs1{k});
+        / sqrt(SortedData.nrev1{k});
 
-    AvgData.err_FM_outer{k} = 1.96* std(RevData.ms_FM_outer{k})/sqrt(SortedData.nrevs2{k});
-    AvgData.err_FM_inner{k} = 1.96* std(RevData.ms_FM_inner{k})/sqrt(SortedData.nrevs1{k});
-    AvgData.err_FM_tot{k} = 1.96* std(RevData.ms_FM_tot{k})/sqrt(SortedData.nrevs1{k});
+    AvgData.err_FM_outer{k} = 1.96* std(RevData.ms_FM_outer{k})/sqrt(SortedData.nrev2{k});
+    AvgData.err_FM_inner{k} = 1.96* std(RevData.ms_FM_inner{k})/sqrt(SortedData.nrev1{k});
+    AvgData.err_FM_tot{k} = 1.96* std(RevData.ms_FM_tot{k})/sqrt(SortedData.nrev1{k});
     
-    AvgData.err_ctcp{k} = 1.96* std(RevData.ms_ctcp{k})/sqrt(SortedData.nrevs1{k});
+    AvgData.err_ctcp{k} = 1.96* std(RevData.ms_ctcp{k})/sqrt(SortedData.nrev1{k});
  
     AvgData.avg_cts_total{k} = (AvgData.avg_cts_inner{k} + AvgData.avg_cts_outer{k})/2;
     AvgData.avg_cps_total{k} = (AvgData.avg_cps_inner{k} + AvgData.avg_cps_outer{k})/2;
        
     AvgData.err_cts_total{k} = 1.96* sqrt( std(RevData.ms_cts_outer{k}+RevData.ms_cts_inner{k})^2 ...
-    + (cts_bias1)^2 + (cts_bias2)^2 ) / sqrt(SortedData.nrevs1{k}); 
+    + (cts_bias1)^2 + (cts_bias2)^2 ) / sqrt(SortedData.nrev1{k}); 
     
     AvgData.err_cps_total{k} = 1.96* sqrt( std(RevData.ms_cps_outer{k}+RevData.ms_cps_inner{k})^2 ...
-    + (cps_bias1)^2 + (cps_bias2)^2 ) / sqrt(SortedData.nrevs1{k});
+    + (cps_bias1)^2 + (cps_bias2)^2 ) / sqrt(SortedData.nrev1{k});
 
-    AvgData.err_IQ1{k} = 1.96* sqrt( std(RevData.ms_IQ1{k})^2 + IQ_bias^2)/sqrt(SortedData.nrevs1{k});
-    AvgData.err_IQ2{k} = 1.96* sqrt( std(RevData.ms_IQ2{k})^2 + IQ_bias^2)/sqrt(SortedData.nrevs2{k});
+    AvgData.err_IQ1{k} = 1.96* sqrt( std(RevData.ms_IQ1{k})^2 + IQ_bias^2)/sqrt(SortedData.nrev1{k});
+    AvgData.err_IQ2{k} = 1.96* sqrt( std(RevData.ms_IQ2{k})^2 + IQ_bias^2)/sqrt(SortedData.nrev2{k});
     
-    AvgData.err_index{k} = 1.96* sqrt( std(RevData.ms_index{k})^2 + az_bias^2)/sqrt(SortedData.nrevs1{k});
+    AvgData.err_index{k} = 1.96* sqrt( std(RevData.ms_index{k})^2 + az_bias^2)/sqrt(SortedData.nrev1{k});
     
     fprintf('%s\n', ' Ok');
 end

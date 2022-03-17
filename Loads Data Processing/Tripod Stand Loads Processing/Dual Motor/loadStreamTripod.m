@@ -51,7 +51,8 @@ mdata(row2rm,:) = [];
 StreamData.names(row2rm,:) = [];
 
 % find nominal RPM : actual RPM within closest 5 RPM. 898 -> 900, 901 -> 900
-MeanData.RPMs = (round(mdata{:,'RPM'}/5))*5;  
+MeanData.ServoRPMs = (round(mdata{:,'ServoRPM'}/5))*5;  
+MeanData.FollowerRPMs = (round(mdata{:,'FollowerRPM'}/5))*5;  
 
 
 %% LOAD AND PROCESS STREAMING FILES
@@ -135,8 +136,20 @@ for k = 1:nfiles
     StreamData.bus_curr{k} = data{:,buscol};          %W
     StreamData.revolution1{k} = data{:,revcol1};       %X
     StreamData.revolution2{k} = data{:,revcol2};       %X
+    
+    %bias revs incase they start at a non-zero number
+    StreamData.revolution1{k} = StreamData.revolution1{k} - StreamData.revolution1{k}(1);
+    StreamData.revolution2{k} = StreamData.revolution2{k} - StreamData.revolution2{k}(1);
+    
     StreamData.nrev1{k} = StreamData.revolution1{k}(end);
     StreamData.nrev2{k} = StreamData.revolution2{k}(end);
+    
+    %account for mismatch between revs
+    if StreamData.nrev1{k} > StreamData.nrev2{k}
+        StreamData.nrev1{k} = StreamData.nrev2{k}; 
+    elseif StreamData.nrev2{k} > StreamData.nrev1{k}
+        StreamData.nrev2{k} = StreamData.nrev1{k};
+    end
     
     fprintf('%s\n', 'Ok');
     

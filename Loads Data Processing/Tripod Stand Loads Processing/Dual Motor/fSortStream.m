@@ -65,6 +65,7 @@ enc = 'y';
 
 %% CALCULATE OMEGA FROM 1/Rev
 for k = 1:length(StreamData.names)
+    
     StreamData.binsize1{k} = zeros(1,StreamData.nrev1{k});
     StreamData.binsize2{k} = zeros(1,StreamData.nrev2{k});
     
@@ -94,7 +95,9 @@ for k = 1:length(StreamData.names)
     
     fprintf('\t%s', ['- ' StreamData.names{k} ' ... ']);
         
-    SortedData.check{k} = [];    
+    SortedData.check1{k} = [];
+    SortedData.check2{k} = [];
+    
     SortedData.encoder1{k} = [];
     SortedData.azimuth1{k} = [];
     
@@ -238,28 +241,44 @@ for k = 1:length(StreamData.names)
             SortedData.index{k}(n,:) = interp1(az, StreamData.index{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
         end
         
-        SortedData.azimuth1{k} = 0:1/b*360:360*(1-1/b);
-        SortedData.encoder1{k}(n,1:b) = SortedData.azimuth1{k};
-        SortedData.instRPM1{k}(n,:) = zeros(1,b);
-
-        SortedData.Fx_inner{k}(n,:) = StreamData.Fx_inner{k}(count1:count1-1+b)';
-        SortedData.Fy_inner{k}(n,:) = StreamData.Fy_inner{k}(count1:count1-1+b)';
-        SortedData.Fz_inner{k}(n,:) = StreamData.Fz_inner{k}(count1:count1-1+b)';
-        SortedData.Mx_inner{k}(n,:) = StreamData.Mx_inner{k}(count1:count1-1+b)';
-        SortedData.My_inner{k}(n,:) = StreamData.My_inner{k}(count1:count1-1+b)';
-        SortedData.Mz_inner{k}(n,:) = StreamData.Mz_inner{k}(count1:count1-1+b)';
-        SortedData.ax{k}(n,:) = StreamData.ax{k}(count1:count1-1+b)';
-        SortedData.ay{k}(n,:) = StreamData.ay{k}(count1:count1-1+b)';
-        SortedData.curr1{k}(n,:) = StreamData.curr1{k}(count1:count1-1+b)';
-        SortedData.curr2{k}(n,:) = StreamData.curr2{k}(count1:count1-1+b)';
-        SortedData.curr3{k}(n,:) = StreamData.curr3{k}(count1:count1-1+b)';
-        SortedData.bus_curr{k}(n,:) = StreamData.bus_curr{k}(count1:count1-1+b)';
-        SortedData.IQ1{k}(n,:) = StreamData.IQ1{k}(count1:count1-1+b)';
-        SortedData.index{k}(n,:) = StreamData.index{k}(count1:count1-1+b)';
-        
         count1 = count1+b;
                 
     end
+    
+    
+    %account for mis-match in revs
+%     if SortedData.nrev1{k} > SortedData.nrev2{k}
+%         SortedData.instRPM1{k}(end,:) = [];
+% 
+%         SortedData.Fx_inner{k}(end,:) = interp1(az, StreamData.Fx_inner{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.Fy_inner{k}(end,:) = interp1(az, StreamData.Fy_inner{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.Fz_inner{k}(end,:) = interp1(az, StreamData.Fz_inner{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.Mx_inner{k}(end,:) = interp1(az, StreamData.Mx_inner{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.My_inner{k}(end,:) = interp1(az, StreamData.My_inner{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.Mz_inner{k}(end,:) = interp1(az, StreamData.Mz_inner{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.ax{k}(end,:) = interp1(az, StreamData.ax{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.ay{k}(end,:) = interp1(az, StreamData.ay{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.curr1{k}(,:) = interp1(az, StreamData.curr1{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.curr2{k}(n,:) = interp1(az, StreamData.curr2{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.curr3{k}(n,:) = interp1(az, StreamData.curr3{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.bus_curr{k}(n,:) = interp1(az, StreamData.bus_curr{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.IQ1{k}(n,:) = interp1(az, StreamData.IQ1{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+% 
+%         SortedData.index{k}(n,:) = interp1(az, StreamData.index{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+
+        
 
 %% Follower Loop
 
@@ -268,7 +287,7 @@ for k = 1:length(StreamData.names)
     for n = 2:StreamData.nrev2{k} %cut out first rev
         b = SortedData.binsize2{k}(n);
         
-        SortedData.check2{k}(n,1:b) = StreamData.revolution2{k}(count2:count2-2+b)';
+        SortedData.check2{k}(n,1:b) = StreamData.revolution2{k}(count2:count2-1+b)';
 
         %"zero" enc for each rev.
         az = StreamData.encoder2{k}(count2:count2-1+b)' - StreamData.encoder2{k}(count2);
@@ -335,22 +354,8 @@ for k = 1:length(StreamData.names)
 
             SortedData.curr6{k}(n,:) = interp1(az, StreamData.curr6{k}(count2:count2-1+b)', SortedData.azimuth2{k}, 'pchip');
 
-            SortedData.IQ2{k}(n,:) = interp1(az, StreamData.IQ2{k}(count1:count1-1+b)', SortedData.azimuth1{k}, 'pchip');
+            SortedData.IQ2{k}(n,:) = interp1(az, StreamData.IQ2{k}(count2:count2-1+b)', SortedData.azimuth1{k}, 'pchip');
         end
-        
-        SortedData.azimuth2{k} = 0:1/b*360:360*(1-1/b);
-        SortedData.encoder2{k}(n,1:b) = SortedData.azimuth2{k};
-        SortedData.instRPM2{k}(n,:) = zeros(1,b);
-        SortedData.Fx_outer{k}(n,:) = StreamData.Fx_outer{k}(count2:count2-1+b)';
-        SortedData.Fy_outer{k}(n,:) = StreamData.Fy_outer{k}(count2:count2-1+b)';              
-        SortedData.Fz_outer{k}(n,:) = StreamData.Fz_outer{k}(count2:count2-1+b)';                
-        SortedData.Mx_outer{k}(n,:) = StreamData.Mx_outer{k}(count2:count2-1+b)';
-        SortedData.My_outer{k}(n,:) = StreamData.My_outer{k}(count2:count2-1+b)';
-        SortedData.Mz_outer{k}(n,:) = StreamData.Mz_outer{k}(count2:count2-1+b)';
-        SortedData.curr4{k}(n,:) = StreamData.curr4{k}(count2:count2-1+b)';
-        SortedData.curr5{k}(n,:) = StreamData.curr5{k}(count2:count2-1+b)';
-        SortedData.curr6{k}(n,:) = StreamData.curr6{k}(count2:count2-1+b)';
-        SortedData.IQ2{k}(n,:) = StreamData.IQ2{k}(count2:count2-1+b)';
         
         count2 = count2+b;
     end
