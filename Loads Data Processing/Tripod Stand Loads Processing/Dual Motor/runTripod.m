@@ -20,7 +20,6 @@ source_dir = pwd; %directory of MATLAB scripts
 
 %% Inputs
 files_dir = 'C:\Users\admin-local\Desktop\Research\02 Data\Streaming'; %directory of .csv data files
-loads = input('Plot with loads? [y/n]: ','s');
 
 %% Load Data
 conditions = [54	29.88]; % [T(Farenh), % humidity, P(in.Hg)]
@@ -44,28 +43,29 @@ AvgData = fTotalAvg(RevData,SortedData,StreamData);
 
 
 %% Process Steady Data
-if exist('steady_test','var')
+if isempty(steady_test) == 0
     fprintf('\nProcessing steady-only data...\n')
     [Averages] = runSteady(StreamData,AvgData,steady_test);
 end
 
 %% Process Phase Sync
-if exist('phaseSync_test','var')
+if isempty(phaseSync_test) == 0
     fprintf('\nRunning phase-sync processing...\n')
-    offset = input('Offset Angle [deg]: ');
+    offset = input('Index Angle Offset [deg]: ');
     slew = input('Angle Slew Rate [deg/s]: ');
-    [PhaseSync] = runPhaseSync(StreamData,phaseSync_test,offset,Trig,GR,slew);    
+    motor = input('Servo or Follower? [s/f]: ','s');
+    [PhaseSync] = runPhaseSync(StreamData,phaseSync_test,offset,GR,slew,motor);    
 end
 
 %% Plotting
 close all; clc;
 
-if exist('steady_test','var') && length(steady_test) ~= 1; [f1,f2,f3] = plotSteady(Averages,collective); end
-if exist('phaseSync_test','var'); [f5,f6] = plotPhaseSync(PhaseSync,phaseSync_test,loads); end
+if isempty(steady_test) == 0 && length(steady_test) ~= 1; [f1,f2,f3] = plotSteady(Averages,collective); end
+if isempty(phaseSync_test) == 0; [f4,f5,f6] = plotPhaseSync(PhaseSync); end
 
 
 %% Saving
-save_dir = uigetdir();
+save_dir = uigetdir('C:\Users\admin-local\Box\For Matt\3rd Year\Tripod Stand\Test Data');
 %Data
 if exist('PhaseSync','var') && exist('Averages','var')
     save(fullfile(save_dir,'Data'),'PhaseSync','Averages');
@@ -84,6 +84,7 @@ if exist('f1','var')
     saveas(f3,fullfile(save_dir,f3.Name),'jpg')
 end
 if exist('f5','var')
+    saveas(f4,fullfile(save_dir,f4.Name),'jpg')
     saveas(f5,fullfile(save_dir,f5.Name),'jpg')
     saveas(f6,fullfile(save_dir,f6.Name),'jpg')
 end

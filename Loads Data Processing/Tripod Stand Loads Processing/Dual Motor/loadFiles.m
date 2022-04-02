@@ -96,7 +96,7 @@ ji = 1; %phase sync test counter
 for i = 1:length(mdata{:,'Path'})
     %steady
     for ii = 1:length(steady_letters)
-        if isempty(steady_letters{1}); break; end
+        if string(steady_letters) == ''; steady_test = []; break; end
         
         if contains(mdata{i,'Path'},strcat('test_',steady_letters{ii}))
             steady_test{ij} = mdata{i,'Path'};
@@ -106,7 +106,7 @@ for i = 1:length(mdata{:,'Path'})
     
     %phase-sync
     for jj = 1:length(phase_sync_letters)
-        if isempty(phase_sync_letters{1}); break; end
+        if string(phase_sync_letters) == ''; phaseSync_test = []; break; end
         
         if contains(mdata{i,'Path'},strcat('test_',phase_sync_letters{jj}))
             phaseSync_test{ji} = mdata{i,'Path'};

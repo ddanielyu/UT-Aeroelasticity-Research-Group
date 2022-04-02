@@ -159,16 +159,6 @@ for k = 1:nfiles
     StreamData.encoder1{k} = StreamData.encoder1{k} - StreamData.encoder1{k}(1);
     StreamData.encoder2{k} = StreamData.encoder2{k} - StreamData.encoder2{k}(1);
     
-    %% CREATE REV COUNTER
-%     revnum = 0;
-%     for i = 1:length(StreamData.encoder1{k})-1
-%         StreamData.revolution1{k}(i,1) = revnum;
-%         if (StreamData.encoder{k}(i) > 359)&& (StreamData.encoder{k}(i+1) < 1)
-%             revnum = revnum + 1; 
-%         end
-%     end
-%     StreamData.revolution{k}(length(StreamData.encoder{k}),1) = revnum;
-%     StreamData.nrevs{k} = revnum;
 end
 
 cd(source_dir);   % return to original directory
