@@ -76,7 +76,9 @@ for i = 1:length(phaseSync_test)
             StreamData.unwrap_enc{idx_PS}(ii) = StreamData.unwrap_enc{idx_PS}(ii-1) + (StreamData.encoder{idx_PS}(ii) + (360 - StreamData.encoder{idx_PS}(ii-1)));
         end
     end
-
+    
+    Ref_angle = StreamData.unwrap_enc{idx_PS} - dazds*(0:length(StreamData.encoder{idx_PS})-1);
+    
     %calc angle err
     idx = 1;
     while idx <= length(ref_angle{idx_PS})
@@ -98,6 +100,7 @@ for i = 1:length(phaseSync_test)
     T_trans(:,idx_PS)  = fcleanup(T_trans(:,idx_PS), 'smoothdata', 'loess', 1000);
 
     PhaseSync.Meas_angle{cnt}(:,ij) = Meas_angle(:,idx_PS); %get time vec
+    PhaseSync.ref_angle{cnt}(:,ij) = Ref_angle(idx_trig);
     PhaseSync.time{cnt} = time; %get time vect
     PhaseSync.Thrust{cnt}(:,ij) = T_trans(:,idx_PS);
     PhaseSync.Angle_err{cnt}(:,ij) = StreamData.angle_err{idx_PS}(idx_trig);
@@ -115,6 +118,8 @@ for i = 1:length(PhaseSync.Thrust)
     PhaseSync.T_err{i} = tinv(.975,size(PhaseSync.Thrust{i},2)) * sqrt(std(PhaseSync.Thrust{i}').^2 + Fb^2)/sqrt(size(PhaseSync.Thrust{i},2));
     PhaseSync.Ang_err_avg{i} = mean(PhaseSync.Angle_err{i}');
     PhaseSync.Ang_err_err{i} = tinv(.975,size(PhaseSync.Angle_err{i},2)) * sqrt(std(PhaseSync.Angle_err{i}').^2 + Az_b^2)/sqrt(size(PhaseSync.Angle_err{i},2));
+    PhaseSync.ref_ang_avg{i} = mean(PhaseSync.ref_angle{i}');
+    PhaseSync.ref_ang_err{i} = tinv(.975,size(PhaseSync.ref_angle{i},2)) * sqrt(std(PhaseSync.ref_angle{i}').^2 + Az_b^2)/sqrt(size(PhaseSync.ref_angle{i},2));
     PhaseSync.Speed_avg{i} = mean(PhaseSync.Speed{i}');
     PhaseSync.Speed_err{i} = tinv(.975,size(PhaseSync.Speed{i},2)) * std(PhaseSync.Speed{i}')/sqrt(size(PhaseSync.Speed{i},2));
     PhaseSync.Torque_avg{i} = mean(PhaseSync.Torque{i}');

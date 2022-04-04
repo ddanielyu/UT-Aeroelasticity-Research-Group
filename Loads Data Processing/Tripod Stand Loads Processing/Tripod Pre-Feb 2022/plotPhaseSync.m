@@ -37,10 +37,10 @@ load('colors.mat')
 f1 = figure('Name','Response_vs_time');
 subplot(3,1,1)
 hold on
-plot_areaerrorbar(PhaseSync.time{id},PhaseSync.Ang_err_avg{id},PhaseSync.Ang_err_err{id},colors{1})
+plot_areaerrorbar(PhaseSync.time{id},PhaseSync.ref_ang_avg{id}/1.2,PhaseSync.ref_ang_err{id}/1.2,colors{1})
 % plot(Angle_err.time, Angle_err.data * -1,'k-','linewidth',1.5)
 hold off
-ylabel('Angle Error, deg')
+ylabel('Rotor Angle, deg')
 legend('Experiment','','Prediction')
 grid on
 grid minor
@@ -48,10 +48,10 @@ xlim([-.1 1])
 
 subplot(3,1,2)
 hold on
-plot_areaerrorbar(PhaseSync.time{id},PhaseSync.Speed_avg{id},PhaseSync.Speed_err{id},colors{1})
+plot_areaerrorbar(PhaseSync.time{id},PhaseSync.Speed_avg{id}/1.2,PhaseSync.Speed_err{id}/1.2,colors{1})
 % plot(Motor_RPM.time, Motor_RPM.data,'k-','linewidth',1.5)
 hold off
-ylabel('$\Omega_{motor}$, RPM')
+ylabel('$\Omega_{rotor}$, RPM')
 legend('Experiment','','Prediction')
 grid on
 grid minor
@@ -59,14 +59,13 @@ xlim([-.1 1])
 
 subplot(3,1,3)
 hold on
-plot_areaerrorbar(PhaseSync.time{id},PhaseSync.Torque_avg{id},PhaseSync.Torque_err{id},colors{1})
-plot_areaerrorbar(PhaseSync.time{id},PhaseSync.Q_est_avg{id},PhaseSync.Q_est_err{id},colors{2})
+plot_areaerrorbar(PhaseSync.time{id},PhaseSync.Torque_avg{id}/1.2,PhaseSync.Torque_err{id}/1.2,colors{1})
+plot_areaerrorbar(PhaseSync.time{id},PhaseSync.Q_est_avg{id}/1.2,PhaseSync.Q_est_err{id}/1.2,colors{2})
 % plot(Q_total.time, Q_total.data/GR,'k-','linewidth',1.5)
 hold off
-ylabel('$Q_{motor}$, $N\cdot m$')
+ylabel('$Q_{rotor}$, $N\cdot m$')
 xlabel('Time, s')
 legend('Experiment','Estimated')
-sgtitle('$+5^\circ$ Angle Offset','Fontsize',24)
 formatfig
 grid on
 grid minor
@@ -77,9 +76,9 @@ f1.Position = [326,236,674,561];
 f2 = figure('Name','Response_vs_revolution');
 subplot(3,1,1)
 hold on
-plot_areaerrorbar(PhaseSync.rev{id}/360,PhaseSync.Ang_err_avg{id},PhaseSync.Ang_err_err{id},colors{1})
+plot_areaerrorbar(PhaseSync.rev{id}/360/1.2,PhaseSync.ref_ang_avg{id}/1.2,PhaseSync.ref_ang_err{id}/1.2,colors{1})
 % plot(nRev_new(full_step1:end)-nRev_new(full_step),Angle_err.data(full_step1:end) * -1,'k-','linewidth',1.5)
-ylabel('Angle Error, deg')
+ylabel('Rotor Angle, deg')
 legend('Experiment','','Prediction')
 hold off
 grid on
@@ -88,9 +87,9 @@ xlim([-1 8])
 
 subplot(3,1,2)
 hold on
-plot_areaerrorbar(PhaseSync.rev{id}/360,PhaseSync.Speed_avg{id},PhaseSync.Speed_err{id},colors{1})
+plot_areaerrorbar(PhaseSync.rev{id}/360/1.2,PhaseSync.Speed_avg{id}/1.2,PhaseSync.Speed_err{id}/1.2,colors{1})
 % plot(nRev_new(full_step1:end)-nRev_new(full_step),Motor_RPM.data(full_step1:end-6),'k-','linewidth',1.5)
-ylabel('$\Omega_{motor}$, RPM')
+ylabel('$\Omega_{rotor}$, RPM')
 legend('Experiment','','Prediction')
 hold off
 grid on
@@ -99,13 +98,12 @@ xlim([-1 8])
 
 subplot(3,1,3)
 hold on
-plot_areaerrorbar(PhaseSync.rev{id}/360,PhaseSync.Torque_avg{id},PhaseSync.Torque_err{id},colors{1})
-plot_areaerrorbar(PhaseSync.rev{id}/360,PhaseSync.Q_est_avg{id},PhaseSync.Q_est_err{id},colors{2})
+plot_areaerrorbar(PhaseSync.rev{id}/360/1.2,PhaseSync.Torque_avg{id}/1.2,PhaseSync.Torque_err{id}/1.2,colors{1})
+plot_areaerrorbar(PhaseSync.rev{id}/360/1.2,PhaseSync.Q_est_avg{id}/1.2,PhaseSync.Q_est_err{id}/1.2,colors{2})
 % plot(nRev_new(full_step1:end)-nRev_new(full_step),Q_total.data(full_step1:end-6)/GR,'k-','linewidth',1.5)
 hold off
-ylabel('$Q_{motor}$, $N\cdot m$')
-xlabel('Motor Revolution')
-sgtitle('$+5^\circ$ Angle Offset','Fontsize',24)
+ylabel('$Q_{rotor}$, $N\cdot m$')
+xlabel('Rotor Revolution')
 legend('Experiment','Estimated')
 formatfig
 grid on
