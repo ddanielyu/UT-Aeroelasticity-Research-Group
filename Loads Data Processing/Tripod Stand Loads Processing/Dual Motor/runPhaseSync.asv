@@ -65,12 +65,12 @@ for i = 1:length(phaseSync_test)
     RPM2 = fcleanup(RPM2, 'smoothdata', 'loess', 700);
     
     % non-dimensionalization factor for CT
-    ct_den1 = StreamData.rho{i} * (pi * StreamData.R^2) * (mean(RPM1)*2*pi/60*StreamData.R).^2;
-    ct_den2 = StreamData.rho{i} * (pi * StreamData.R^2) * (mean(RPM2)*2*pi/60*StreamData.R).^2;
+    ct_den1 = StreamData.rho{i} * (pi * StreamData.R^2) * (RPM1*2*pi/60*StreamData.R).^2;
+    ct_den2 = StreamData.rho{i} * (pi * StreamData.R^2) * (RPM2*2*pi/60*StreamData.R).^2;
     
     % non-dimensionalization factor for CP
-    cq_den1 = StreamData.rho{i} * (pi * StreamData.R^2) * (mean(RPM1)*2*pi/60*StreamData.R).^2 * StreamData.R;
-    cq_den2 = StreamData.rho{i} * (pi * StreamData.R^2) * (mean(RPM2)*2*pi/60*StreamData.R).^2 * StreamData.R;
+    cq_den1 = StreamData.rho{i} * (pi * StreamData.R^2) * (RPM1*2*pi/60*StreamData.R).^2 * StreamData.R;
+    cq_den2 = StreamData.rho{i} * (pi * StreamData.R^2) * (RPM2*2*pi/60*StreamData.R).^2 * StreamData.R;
     
     
     %bias uncertainties
@@ -165,15 +165,15 @@ for i = 1:length(phaseSync_test)
     PhaseSync.Q2_est(:,ij) = Q2_est_trans(:,i);
     
     PhaseSync.cts_up(:,ij) = PhaseSync.Thrust_outer(:,i)/StreamData.sigma/pi/StreamData.R^2/StreamData.rho{i}./...
-        (PhaseSync.servo_speed(:,ij)*2*pi/60*StreamData.R).^2;
+        (PhaseSync.servo_speed*2*pi/60*StreamData.R).^2;
     PhaseSync.cts_lo(:,ij) = PhaseSync.Thrust_inner(:,i)/StreamData.sigma/pi/StreamData.R^2/StreamData.rho{i}./...
-        (PhaseSync.follower_speed(:,ij)*2*pi/60*StreamData.R).^2;
+        (PhaseSync.follower_speed*2*pi/60*StreamData.R).^2;
     PhaseSync.cts_tot(:,ij) = (PhaseSync.cts_up(:,ij) + PhaseSync.cts_lo(:,ij))/2;
     
-    PhaseSync.cps_up(:,ij) = (PhaseSync.Torque_outer(:,i).*PhaseSync.servo_speed(:,ij)*2*pi/60)/StreamData.sigma/pi/StreamData.R^2/StreamData.rho{i}./...
-        (PhaseSync.servo_speed(:,ij)*2*pi/60*StreamData.R).^3;
-    PhaseSync.cps_lo(:,ij) = (PhaseSync.Torque_inner(:,i).*PhaseSync.follower_speed(:,ij)*2*pi/60)/StreamData.sigma/pi/StreamData.R^2/StreamData.rho{i}./...
-        (PhaseSync.follower_speed(:,ij)*2*pi/60*StreamData.R).^3;
+    PhaseSync.cps_up(:,ij) = (PhaseSync.Torque_outer(:,i).*PhaseSync.servo_speed*2*pi/60)/StreamData.sigma/pi/StreamData.R^2/StreamData.rho{i}./...
+        (PhaseSync.servo_speed*2*pi/60*StreamData.R).^3;
+    PhaseSync.cps_lo(:,ij) = (PhaseSync.Torque_inner(:,i).*PhaseSync.follower_speed*2*pi/60)/StreamData.sigma/pi/StreamData.R^2/StreamData.rho{i}./...
+        (PhaseSync.follower_speed*2*pi/60*StreamData.R).^3;
     PhaseSync.cps_tot(:,ij) = (PhaseSync.cps_up(:,ij) + PhaseSync.cps_lo(:,ij))/2;
     
     ij = ij + 1;
@@ -209,18 +209,11 @@ PhaseSync.index_avg = mean(PhaseSync.index');
 PhaseSync.index_err = tinv(.975,size(PhaseSync.index,2)) * sqrt(std(PhaseSync.index').^2 + Az_b^2)/sqrt(size(PhaseSync.index,2));
 
 PhaseSync.cts_up_avg = mean(PhaseSync.cts_up');
-PhaseSync.cts_up_err = tinv(.975,size(PhaseSync.cts_up,2)) * sqrt(std(PhaseSync.cts_up').^2 + cts_bias1^2)/sqrt(size(PhaseSync.cts_up,2));
+PhaseSync.cts_up_err = tinv(.975,size(PhaseSync.cts_up,2)) * sqrt(std(PhaseSync.cts_up')^2 + cts_bias1^2)/sqrt(size(PhaseSync.cts_up,2));
 PhaseSync.cts_lo_avg = mean(PhaseSync.cts_lo');
-PhaseSync.cts_lo_err = tinv(.975,size(PhaseSync.cts_lo,2)) * sqrt(std(PhaseSync.cts_lo').^2 + cts_bias2^2)/sqrt(size(PhaseSync.cts_lo,2));
+PhaseSync.cts_lo_err = tinv(.975,size(PhaseSync.cts_lo,2)) * sqrt(std(PhaseSync.cts_lo')^2 + cts_bias2^2)/sqrt(size(PhaseSync.cts_lo,2));
 PhaseSync.cts_tot_avg = mean(PhaseSync.cts_tot');
 PhaseSync.cts_tot_err = (PhaseSync.cts_up_err + PhaseSync.cts_lo_err)/2;
-
-PhaseSync.cps_up_avg = mean(PhaseSync.cps_up');
-PhaseSync.cps_up_err = tinv(.975,size(PhaseSync.cps_up,2)) * sqrt(std(PhaseSync.cps_up').^2 + cps_bias1^2)/sqrt(size(PhaseSync.cps_up,2));
-PhaseSync.cps_lo_avg = mean(PhaseSync.cps_lo');
-PhaseSync.cps_lo_err = tinv(.975,size(PhaseSync.cps_lo,2)) * sqrt(std(PhaseSync.cps_lo').^2 + cps_bias2^2)/sqrt(size(PhaseSync.cps_lo,2));
-PhaseSync.cps_tot_avg = mean(PhaseSync.cps_tot');
-PhaseSync.cps_tot_err = (PhaseSync.cps_up_err + PhaseSync.cps_lo_err)/2;
 
 
 fprintf('\nPhase-sync processing done.\n')

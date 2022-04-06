@@ -61,7 +61,7 @@ end
 close all; clc;
 
 if isempty(steady_test) == 0 && length(steady_test) ~= 1; [f1,f2,f3] = plotSteady(Averages,collective); end
-if isempty(phaseSync_test) == 0; [f4,f5,f6] = plotPhaseSync(PhaseSync); end
+if isempty(phaseSync_test) == 0; [f4,f5,f6,f7,f8] = plotPhaseSync(PhaseSync); end
 
 
 %% Saving
@@ -87,6 +87,8 @@ if exist('f5','var')
     saveas(f4,fullfile(save_dir,f4.Name),'jpg')
     saveas(f5,fullfile(save_dir,f5.Name),'jpg')
     saveas(f6,fullfile(save_dir,f6.Name),'jpg')
+    saveas(f7,fullfile(save_dir,f7.Name),'jpg')
+    saveas(f8,fullfile(save_dir,f8.Name),'jpg')
 end
 
 
