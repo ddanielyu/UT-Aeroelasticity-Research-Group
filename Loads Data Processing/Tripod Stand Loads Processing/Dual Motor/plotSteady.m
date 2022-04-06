@@ -14,7 +14,7 @@ load('colors.mat')
 %% Load Prediction
 
 %call BEMT (Ct,Cp,theta)
-BEMT = load('BEMTdata_coax_4-bladed_final.mat');
+BEMT = load('BEMTdata_coax_final.mat');
 
 %create predicted Thrust and Power curves
 RPM = linspace(0,1200,2000);
@@ -41,9 +41,9 @@ errorbar(cell2mat(Averages.index_avg),cell2mat(Averages.cts_avg),...
     cell2mat(Averages.index_err),cell2mat(Averages.index_err),'s','color',colors{3},...
     'MarkerFaceColor',colors{3})
 xlabel('Index Angle, $\phi$ [deg]')
-ylabel('Blade Loading, $C_T/sigma$ [-]')
+ylabel('Blade Loading, $C_T/\sigma$ [-]')
 legend('BEMT','Upper','Lower','Total','location','northeast')
-ylim([-inf (Cp_BEMT/Averages.sigma+0.01)])
+% ylim([-inf (Cp_BEMT/Averages.sigma+0.01)])
 formatfig
 hold off
 

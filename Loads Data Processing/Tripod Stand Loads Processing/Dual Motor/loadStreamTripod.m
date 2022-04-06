@@ -108,10 +108,10 @@ for k = 1:nfiles
     data = readtable(StreamData.names{k});
     StreamData.Fx_outer{k} = data{:,Fxocol};         %A
     StreamData.Fy_outer{k} = data{:,Fyocol};         %B
-    StreamData.Fz_outer{k} = data{:,Fzocol};    %C
+    StreamData.Fz_outer{k} = data{:,Fzocol} * -1;    %C
     StreamData.Mx_outer{k} = data{:,Mxocol};         %D
     StreamData.My_outer{k} = data{:,Myocol};         %E
-    StreamData.Mz_outer{k} = data{:,Mzocol};      %F
+    StreamData.Mz_outer{k} = data{:,Mzocol} * -1;      %F
     StreamData.Fx_inner{k} = data{:,Fxicol};         %G
     StreamData.Fy_inner{k} = data{:,Fyicol};         %H
     StreamData.Fz_inner{k} = data{:,Fzicol};         %I
@@ -129,9 +129,11 @@ for k = 1:nfiles
     StreamData.curr4{k} = data{:,curr4col};
     StreamData.curr5{k} = data{:,curr5col};
     StreamData.curr6{k} = -1*(StreamData.curr4{k} + StreamData.curr5{k});
-    StreamData.IQ1{k} = parkClarke(StreamData.curr1{k},StreamData.curr2{k},StreamData.curr3{k}); 
-    StreamData.IQ2{k} = parkClarke(StreamData.curr4{k},StreamData.curr5{k},StreamData.curr6{k});
-
+    for i = 1:length(StreamData.curr1{k})
+        
+        StreamData.IQ1{k}(i) = sqrt(2/3)*norm([StreamData.curr1{k}(i),StreamData.curr2{k}(i),StreamData.curr3{k}(i)]); 
+        StreamData.IQ2{k}(i) = sqrt(2/3)*norm([StreamData.curr4{k}(i),StreamData.curr5{k}(i),StreamData.curr6{k}(i)]);
+    end
     
     StreamData.bus_curr{k} = data{:,buscol};          %W
     StreamData.revolution1{k} = data{:,revcol1};       %X

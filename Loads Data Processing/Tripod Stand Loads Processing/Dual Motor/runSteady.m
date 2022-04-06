@@ -37,24 +37,24 @@ for i = 1:length(steady_test)
     Averages.GR = StreamData.GR;
     
     %Create Averages structure
-    %upper
-    Averages.cts_up_avg{i} = AvgData.avg_cts_inner{idx_steady};
-    Averages.cts_up_err{i} = AvgData.err_cts_inner{idx_steady};
-    Averages.cps_up_avg{i} = AvgData.avg_cps_inner{idx_steady};
-    Averages.cps_up_err{i} = AvgData.err_cps_inner{idx_steady};
-    Averages.cps_up_est_avg{i} = AvgData.avg_IQ1{idx_steady}*Kt/sqrt(2)*Averages.OMEGA1{i}*Averages.GR/...
+    %lower
+    Averages.cts_lo_avg{i} = AvgData.avg_cts_inner{idx_steady};
+    Averages.cts_lo_err{i} = AvgData.err_cts_inner{idx_steady};
+    Averages.cps_lo_avg{i} = AvgData.avg_cps_inner{idx_steady};
+    Averages.cps_lo_err{i} = AvgData.err_cps_inner{idx_steady};
+    Averages.cps_lo_est_avg{i} = AvgData.avg_IQ1{idx_steady}*Kt/sqrt(2)*Averages.OMEGA1{i}*Averages.GR/...
         (Averages.sigma*pi*Averages.R^2*Averages.rho{i}*(Averages.OMEGA1{i}*Averages.R)^3);
-    Averages.cps_up_est_err{i} = AvgData.err_IQ1{idx_steady}*Kt/sqrt(2)*Averages.OMEGA1{i}*Averages.GR/...
+    Averages.cps_lo_est_err{i} = AvgData.err_IQ1{idx_steady}*Kt/sqrt(2)*Averages.OMEGA1{i}*Averages.GR/...
         (Averages.sigma*pi*Averages.R^2*Averages.rho{i}*(Averages.OMEGA1{i}*Averages.R)^3);
     
-    %lower
-    Averages.cts_lo_avg{i} = AvgData.avg_cts_outer{idx_steady};
-    Averages.cts_lo_err{i} = AvgData.err_cts_outer{idx_steady};
-    Averages.cps_lo_avg{i} = AvgData.avg_cps_outer{idx_steady};
-    Averages.cps_lo_err{i} = AvgData.err_cps_outer{idx_steady};
-    Averages.cps_lo_est_avg{i} = AvgData.avg_IQ2{idx_steady}*Kt/sqrt(2)*Averages.OMEGA2{i}*Averages.GR/...
+    %upper
+    Averages.cts_up_avg{i} = AvgData.avg_cts_outer{idx_steady};
+    Averages.cts_up_err{i} = AvgData.err_cts_outer{idx_steady};
+    Averages.cps_up_avg{i} = AvgData.avg_cps_outer{idx_steady};
+    Averages.cps_up_err{i} = AvgData.err_cps_outer{idx_steady};
+    Averages.cps_up_est_avg{i} = AvgData.avg_IQ2{idx_steady}*Kt/sqrt(2)*Averages.OMEGA2{i}*Averages.GR/...
         (Averages.sigma*pi*Averages.R^2*Averages.rho{i}*(Averages.OMEGA2{i}*Averages.R)^3);
-    Averages.cps_lo_est_err{i} = AvgData.err_IQ2{idx_steady}*Kt/sqrt(2)*Averages.OMEGA2{i}*Averages.GR/...
+    Averages.cps_up_est_err{i} = AvgData.err_IQ2{idx_steady}*Kt/sqrt(2)*Averages.OMEGA2{i}*Averages.GR/...
         (Averages.sigma*pi*Averages.R^2*Averages.rho{i}*(Averages.OMEGA2{i}*Averages.R)^3);
     
     %total
@@ -66,8 +66,8 @@ for i = 1:length(steady_test)
     Averages.cps_est_err{i} = mean([Averages.cps_up_est_err{i},Averages.cps_lo_est_err{i}]);
     
     %FM
-    Averages.FM_lo{i} = AvgData.avg_FM_outer{idx_steady}; Averages.FM_err_lo{i} = AvgData.err_FM_outer{idx_steady};
-    Averages.FM_up{i} = AvgData.avg_FM_inner{idx_steady}; Averages.FM_err_up{i} = AvgData.err_FM_inner{idx_steady};
+    Averages.FM_up{i} = AvgData.avg_FM_outer{idx_steady}; Averages.FM_err_up{i} = AvgData.err_FM_outer{idx_steady};
+    Averages.FM_lo{i} = AvgData.avg_FM_inner{idx_steady}; Averages.FM_err_lo{i} = AvgData.err_FM_inner{idx_steady};
     Averages.FM_tot{i}= AvgData.avg_FM_tot{idx_steady}; Averages.FM_err_tot{i} = AvgData.err_FM_tot{idx_steady};
     
     %upper

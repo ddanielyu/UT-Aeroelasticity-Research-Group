@@ -19,7 +19,7 @@ Trig = 6; %rpm spike from nominal rpm to find phase sync trigger
 source_dir = pwd; %directory of MATLAB scripts
 
 %% Inputs
-files_dir = 'C:\Users\admin-local\Desktop\Research\02 Data\Streaming'; %directory of .csv data files
+files_dir = '/Volumes/My Passport/UT Austin/Research/Spring 2022 Dual Motor Data'; %directory of .csv data files
 
 %% Load Data
 conditions = [54	29.88]; % [T(Farenh), % humidity, P(in.Hg)]
