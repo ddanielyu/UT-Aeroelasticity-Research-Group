@@ -41,7 +41,13 @@ warning off
 
 %% INPUTS
 
-directory = uigetdir();
+directory = '\Users\admin-local\Box\Chloe Lab Stuff\2020 Fall Stacked Rotor\Outdoor';
+directory = '\Users\admin-local\Desktop\Research\02 Data\Streaming';
+
+directory = '/Users/chloe/Box/Chloe Lab Stuff/2021 Fall Stacked Rotor';
+directory = '\Users\cmj2855\Box\Chloe Lab Stuff\2021 Spring Stacked Rotor\Outdoor';
+
+directory = '\Users\admin-local\Box\Chloe Lab Stuff\2022 Spring Stacked Rotor\Indoor Loads\2 Bladed Loads';
 
 rotor = input('Rotor type [ Uber CCR ]: ', 's');
 

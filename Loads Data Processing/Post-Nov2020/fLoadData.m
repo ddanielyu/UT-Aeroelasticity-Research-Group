@@ -79,8 +79,8 @@ switch(rotor)
         pr2ocol = 16;          % Push rod 2 outer column
         axcol = 21;           % mag Ax column
         aycol = 22;           % mag Ay column
-        enccol = 23;          % encoder angle column
-        revcol = 24;          % revolution column
+        enccol = 25;          % encoder angle column
+        revcol = 26;          % revolution column
 %         trigcol = 25;         % trigger column
     case 'Uber'
         Fxocol = 1;          % Fx_outer column
@@ -265,7 +265,7 @@ for k = 1:nfiles
     StreamData.Mz_inner{k} = data{:,Mzicol}*-1;         %L
     StreamData.ax{k} = data{:,axcol};                %M
     StreamData.ay{k} = data{:,aycol};                %N
-    StreamData.encoder{k} = data{:,enccol} * -1;          %W
+    StreamData.encoder{k} = data{:,enccol}*-1;          %W
 %     StreamData.curr1{k} = data{:,curr1col};          %W
 %     StreamData.curr2{k} = data{:,curr2col};          %W
     StreamData.revolution{k} = data{:,revcol};       %X

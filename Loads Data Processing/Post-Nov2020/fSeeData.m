@@ -5,7 +5,7 @@ function [] = fSeeData(rotor, MeanData, SortedData, RevData)
 %% LIST OPERATING POINTS
 
 fprintf('\n%s\n', 'Loaded data points are ');
-uRPMs = unique(MeanData.RPMs');
+uRPMs = unique(MeanData.ServoRPMs');
 
 fprintf('\n%s\t%s\n', 'Rotor speeds, RPM : ', num2str(uRPMs));
 switch rotor
@@ -13,11 +13,11 @@ switch rotor
         uzcs = unique(MeanData.zcs');
         uphis = unique(MeanData.phis');
         umcols = unique(MeanData.meancols');
-        udcols = unique(MeanData.diffcols');
+%         udcols = unique(MeanData.diffcols');
         fprintf('%s\t%s\n', 'Axial spacing, z/c : ', num2str(uzcs));
         fprintf('%s\t%s\n', 'Index angle, deg : ', num2str(uphis));
         fprintf('%s\t%s\n', 'Mean collective, deg : ', num2str(umcols));
-        fprintf('%s\t%s\n\n', 'Diff collective, deg : ', num2str(udcols));
+%         fprintf('%s\t%s\n\n', 'Diff collective, deg : ', num2str(udcols));
     case 'CCR'
         umcols_in = 0;%unique(MeanData.cols_in');
         umcols_out = 0;%unique(MeanData.cols_out');
@@ -75,24 +75,24 @@ while plotting == true
             else
                 pmcols = umcols;
             end
-            if length(udcols) > 1
-                pdcols = input('Diff. collectives to plot : ');
-                if (length(pdcols)>1) && isempty(thirdvar)
-                    thirdvar = pdcols;
-                else
-                    pdcols = pdcols(1);
-                end
-            else
-                pdcols = udcols;
-            end
+%             if length(udcols) > 1
+%                 pdcols = input('Diff. collectives to plot : ');
+%                 if (length(pdcols)>1) && isempty(thirdvar)
+%                     thirdvar = pdcols;
+%                 else
+%                     pdcols = pdcols(1);
+%                 end
+%             else
+%                 pdcols = udcols;
+%             end
             % identify corresponding data files
-            fnos_pRPMs = (MeanData.RPMs == pRPMs);
+            fnos_pRPMs = (MeanData.ServoRPMs == pRPMs);
             fnos_pzcs = (MeanData.zcs == pzcs);
-            fnos_pphis = (MeanData.phis == pphis);
+            fnos_pphis = (round(MeanData.phis,2) == round(pphis,2));
             fnos_pmcols = (MeanData.meancols == pmcols);
-            fnos_pdcols = (MeanData.diffcols == pdcols);
+%             fnos_pdcols = (MeanData.diffcols == pdcols);
 
-            fnos_p = (fnos_pRPMs & fnos_pzcs & fnos_pphis & fnos_pmcols & fnos_pdcols);
+            fnos_p = (fnos_pRPMs & fnos_pzcs & fnos_pphis & fnos_pmcols);% & fnos_pdcols);
             
         case 'CCR'
             % select a set of operating conditions
@@ -127,7 +127,7 @@ while plotting == true
                 pmcols_out = umcols_out;
             end
             % identify corresponding data files
-            fnos_pRPMs = (MeanData.RPMs == pRPMs);
+            fnos_pRPMs = (MeanData.ServoRPMs == pRPMs);
             fnos_pmcols_out = (MeanData.cols_out == pmcols_out);
             fnos_pmcols_in = (MeanData.cols_in == pmcols_in);
 
@@ -150,7 +150,7 @@ end
         yvar_Myo = cell2mat(SortedData.My_outer(fnos_p(:,ii))');
         yvar_Mzo = cell2mat(SortedData.Mz_outer(fnos_p(:,ii))');
     end
-    xvar = cell2mat(SortedData.azimuth(fnos_p(:,ii))');
+    xvar = cell2mat(SortedData.azimuth1(fnos_p(:,ii))');
     xvar = xvar(1,:);   % keep only the first row [ 1 x Naz ]
      
     close all

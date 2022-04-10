@@ -64,6 +64,21 @@ for i = 1:length(phaseSync_test)
     RPM2 = (StreamData.encoder2{i}(2:end) - StreamData.encoder2{i}(1:end-1))*Fs/360*60;
     RPM2 = fcleanup(RPM2, 'smoothdata', 'loess', 700);
     
+    % non-dimensionalization factor for CT
+    ct_den1 = StreamData.rho{i} * (pi * StreamData.R^2) * (mean(RPM1)*2*pi/60*StreamData.R).^2;
+    ct_den2 = StreamData.rho{i} * (pi * StreamData.R^2) * (mean(RPM2)*2*pi/60*StreamData.R).^2;
+    
+    % non-dimensionalization factor for CP
+    cq_den1 = StreamData.rho{i} * (pi * StreamData.R^2) * (mean(RPM1)*2*pi/60*StreamData.R).^2 * StreamData.R;
+    cq_den2 = StreamData.rho{i} * (pi * StreamData.R^2) * (mean(RPM2)*2*pi/60*StreamData.R).^2 * StreamData.R;
+    
+    
+    %bias uncertainties
+    cts_bias1 = 18.75 / ct_den1 / StreamData.sigma;
+    cps_bias1 = 1.5 / cq_den1 / StreamData.sigma;
+    cts_bias2 = 18.75 / ct_den2 / StreamData.sigma;
+    cps_bias2 = 1.5 / cq_den2 / StreamData.sigma;
+    
     %avg motor rpm prior to trig
     rpm_motor = mean(RPM1(1:start));
     rpm_motor2 = mean(RPM2(1:start));
@@ -113,8 +128,8 @@ for i = 1:length(phaseSync_test)
 
     time            = Time - Time(start); time = time(idx_trig);%get time vect
     time0           = Time - Time(start); time0 = time0(idx_trig - 1);
-    Mz_outer_trans(:,i)   = StreamData.Mz_outer{i}(idx_trig);
-    Mz_inner_trans(:,i)   = StreamData.Mz_inner{i}(idx_trig);
+    Mz_outer_trans(:,i)   = fcleanup(StreamData.Mz_outer{i}(idx_trig),'smoothdata','loess',250);
+    Mz_inner_trans(:,i)   = fcleanup(StreamData.Mz_inner{i}(idx_trig),'smoothdata','loess',250);
     Q1_est_trans(:,i)   = fcleanup(StreamData.IQ1{i}(idx_trig)*Kt/sqrt(2)*GR,'smoothdata','loess',300); %estimated servo rotor torque
     Q2_est_trans(:,i)   = fcleanup(StreamData.IQ2{i}(idx_trig)*Kt/sqrt(2)*GR,'smoothdata','loess',300); %estimated follower rotor torque
     RPM1_trans            = RPM1(idx_trig);
@@ -126,11 +141,11 @@ for i = 1:length(phaseSync_test)
     Meas_angle1(:,i) = bias_angle1(idx_trig);
     Meas_angle2(:,i) = bias_angle2(idx_trig);
 
-    T_outer_trans(:,i)   = abs(StreamData.Fz_outer{i}(idx_trig));
-    T_outer_trans(:,i)  = fcleanup(T_outer_trans(:,i), 'smoothdata', 'loess', 500);
-
-    T_inner_trans(:,i)   = abs(StreamData.Fz_inner{i}(idx_trig));
-    T_inner_trans(:,i)  = fcleanup(T_inner_trans(:,i), 'smoothdata', 'loess', 500);
+    T_outer = fcleanup(abs(StreamData.Fz_outer{i}),'smoothdata','loess',300);
+    T_inner = fcleanup(abs(StreamData.Fz_inner{i}),'smoothdata','loess',300);
+    
+    T_outer_trans(:,i)   = T_outer(idx_trig);
+    T_inner_trans(:,i)   = T_inner(idx_trig);
 
     PhaseSync.Meas_angle1(:,ij) = Meas_angle1(:,i); %get time vec
     PhaseSync.Meas_angle2(:,ij) = Meas_angle2(:,i); %get time vec
@@ -148,6 +163,19 @@ for i = 1:length(phaseSync_test)
     PhaseSync.Torque_inner(:,ij) = Mz_inner_trans(:,i);
     PhaseSync.Q1_est(:,ij) = Q1_est_trans(:,i);
     PhaseSync.Q2_est(:,ij) = Q2_est_trans(:,i);
+    
+    PhaseSync.cts_up(:,ij) = PhaseSync.Thrust_outer(:,i)/StreamData.sigma/pi/StreamData.R^2/StreamData.rho{i}./...
+        (PhaseSync.servo_speed(:,ij)*2*pi/60*StreamData.R).^2;
+    PhaseSync.cts_lo(:,ij) = PhaseSync.Thrust_inner(:,i)/StreamData.sigma/pi/StreamData.R^2/StreamData.rho{i}./...
+        (PhaseSync.follower_speed(:,ij)*2*pi/60*StreamData.R).^2;
+    PhaseSync.cts_tot(:,ij) = (PhaseSync.cts_up(:,ij) + PhaseSync.cts_lo(:,ij))/2;
+    
+    PhaseSync.cps_up(:,ij) = (PhaseSync.Torque_outer(:,i).*PhaseSync.servo_speed(:,ij)*2*pi/60)/StreamData.sigma/pi/StreamData.R^2/StreamData.rho{i}./...
+        (PhaseSync.servo_speed(:,ij)*2*pi/60*StreamData.R).^3;
+    PhaseSync.cps_lo(:,ij) = (PhaseSync.Torque_inner(:,i).*PhaseSync.follower_speed(:,ij)*2*pi/60)/StreamData.sigma/pi/StreamData.R^2/StreamData.rho{i}./...
+        (PhaseSync.follower_speed(:,ij)*2*pi/60*StreamData.R).^3;
+    PhaseSync.cps_tot(:,ij) = (PhaseSync.cps_up(:,ij) + PhaseSync.cps_lo(:,ij))/2;
+    
     ij = ij + 1;
 end
 
@@ -179,6 +207,21 @@ PhaseSync.Q2_est_avg = mean(PhaseSync.Q2_est');
 PhaseSync.Q2_est_err = tinv(.975,size(PhaseSync.Q2_est,2)) * sqrt(std(PhaseSync.Q2_est').^2 + (IQ_b*Kt/sqrt(2)*GR)^2)/sqrt(size(PhaseSync.Q2_est,2));
 PhaseSync.index_avg = mean(PhaseSync.index');
 PhaseSync.index_err = tinv(.975,size(PhaseSync.index,2)) * sqrt(std(PhaseSync.index').^2 + Az_b^2)/sqrt(size(PhaseSync.index,2));
+
+PhaseSync.cts_up_avg = mean(PhaseSync.cts_up');
+PhaseSync.cts_up_err = tinv(.975,size(PhaseSync.cts_up,2)) * sqrt(std(PhaseSync.cts_up').^2 + cts_bias1^2)/sqrt(size(PhaseSync.cts_up,2));
+PhaseSync.cts_lo_avg = mean(PhaseSync.cts_lo');
+PhaseSync.cts_lo_err = tinv(.975,size(PhaseSync.cts_lo,2)) * sqrt(std(PhaseSync.cts_lo').^2 + cts_bias2^2)/sqrt(size(PhaseSync.cts_lo,2));
+PhaseSync.cts_tot_avg = mean(PhaseSync.cts_tot');
+PhaseSync.cts_tot_err = (PhaseSync.cts_up_err + PhaseSync.cts_lo_err)/2;
+
+PhaseSync.cps_up_avg = mean(PhaseSync.cps_up');
+PhaseSync.cps_up_err = tinv(.975,size(PhaseSync.cps_up,2)) * sqrt(std(PhaseSync.cps_up').^2 + cps_bias1^2)/sqrt(size(PhaseSync.cps_up,2));
+PhaseSync.cps_lo_avg = mean(PhaseSync.cps_lo');
+PhaseSync.cps_lo_err = tinv(.975,size(PhaseSync.cps_lo,2)) * sqrt(std(PhaseSync.cps_lo').^2 + cps_bias2^2)/sqrt(size(PhaseSync.cps_lo,2));
+PhaseSync.cps_tot_avg = mean(PhaseSync.cps_tot');
+PhaseSync.cps_tot_err = (PhaseSync.cps_up_err + PhaseSync.cps_lo_err)/2;
+
 
 fprintf('\nPhase-sync processing done.\n')
 
