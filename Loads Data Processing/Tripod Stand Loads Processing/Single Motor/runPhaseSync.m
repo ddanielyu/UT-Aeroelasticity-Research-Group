@@ -26,7 +26,7 @@ IQ_b = sqrt(2/3)*sqrt(3*I150_b^2); %error propagation of CR_150A current sensors
 
 Az_b = 360/1024/2; %Encoder resolution 1024 bits / rev
 
-Fs = 10e3; %Sample rate [Hz]
+Fs = 4e3; %Sample rate [Hz]
 pre_trig = 0.25;
 post_trig = 1;
 
@@ -48,29 +48,29 @@ for i = 1:length(phaseSync_test)
     %Find phase-sync file in StreamData
     idx_PS = cellfun(@(x) strcmp(x, phaseSync_test{i}), StreamData.names, 'UniformOutput', 1);
 
-    Trig = 3*nanstd(StreamData.rpm{idx_PS}(2:end-1));
+    Trig = 5;
     
     StreamData.Mz_inner{idx_PS} = abs(StreamData.Mz_inner{idx_PS});
     
     Time     = 0:1/Fs:(length(StreamData.encoder{idx_PS})-1)/Fs;
     
     %find angle trigger and calculate the rev-averaged angle error
-    est_avg_rpm = abs(nanmean(StreamData.rpm{idx_PS}));
+    est_avg_torque = abs(nanmean(StreamData.Mz_inner{idx_PS}));
     
     if offset < 0
-        start    = find((abs(StreamData.rpm{idx_PS}(2:end-1)) < est_avg_rpm - Trig),1);          %first index at which trig occurs
+        start    = find((abs(StreamData.Mz_inner{idx_PS}(2:end-1)) < est_avg_torque - Trig),1);          %first index at which trig occurs
     else
-        start    = find((abs(StreamData.rpm{idx_PS}(2:end-1)) > est_avg_rpm + Trig),1);          %first index at which trig occurs
+        start    = find((abs(StreamData.Mz_inner{idx_PS}(2:end-1)) > est_avg_torque + Trig),1);          %first index at which trig occurs
     end
         
-    while start == 1
-        StreamData.rpm{idx_PS} = fcleanup(StreamData.rpm{idx_PS}, 'smoothdata', 'loess', 700); 
-        if offset < 0
-            start    = find((abs(StreamData.rpm{idx_PS}(2:end)) < est_avg_rpm - Trig),1);          %first index at which trig occurs
-        else
-            start    = find((abs(StreamData.rpm{idx_PS}(2:end)) > est_avg_rpm + Trig),1);          %first index at which trig occurs
-        end
-    end
+%     while start == 1
+%         StreamData.rpm{idx_PS} = fcleanup(StreamData.rpm{idx_PS}, 'smoothdata', 'loess', 700); 
+%         if offset < 0
+%             start    = find((abs(StreamData.rpm{idx_PS}(2:end)) < est_avg_torque - Trig),1);          %first index at which trig occurs
+%         else
+%             start    = find((abs(StreamData.rpm{idx_PS}(2:end)) > est_avg_torque + Trig),1);          %first index at which trig occurs
+%         end
+%     end
     
     start = start - 500; %adjust for delay in rpm trig due to smoothing
     

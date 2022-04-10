@@ -16,6 +16,11 @@ dir = uigetdir('/Users/asper101/Box Sync/For Matt/3rd Year/Tripod Stand'); %file
 load(fullfile(dir,'Data.mat'));
 GR = input('Gear Ratio: ');
 
+%% Constants
+%scale power empirically by steady index
+Cp_up_scale = 1.0420;
+Cp_lo_scale = 0.7216;
+
 %% Reponses versus time
 [sim_file,sim_path] = uigetfile(strcat('/Users/asper101/Box Sync/For Matt/3rd Year/Electromechanical Modeling/'));
 load(fullfile(sim_path,sim_file));
@@ -44,13 +49,61 @@ Q_motor_follower.time = Q_motor_follower.time - sim_step;
 clc;close all;
 
 %Response vs Time
-f10 = figure('Name','Estimated_Response_vs_time');
+f10 = figure('Name','Response_vs_time');
 
 %Position
 subplot(3,1,1)
 hold on
 plot(Act_angle_servo.time,(Act_angle_servo.data)/GR,'k-','linewidth',1.5)
-plot(Act_angle_follower.time,(Act_angle_follower.data-6)/GR,'k-.','linewidth',1.5)
+plot(Act_angle_follower.time,(Act_angle_follower.data+5)/GR,'k-.','linewidth',1.5)
+plot_areaerrorbar(PhaseSync.time+.035,PhaseSync.ref_ang1_avg,PhaseSync.ref_ang1_err,colors{1})
+plot_areaerrorbar(PhaseSync.time+.035,PhaseSync.ref_ang2_avg+.4,PhaseSync.ref_ang2_err,colors{2})
+ylabel('Rotor Angle, deg')
+legend('Upper','Lower','Upper','Lower','location','southeast')
+xlim([-.1 1])
+formatfig
+grid on
+grid minor
+
+%Speed
+subplot(3,1,2)
+hold on
+plot(Rotor_RPM_servo.time,Rotor_RPM_servo.data,'k-','linewidth',1.5)
+plot(Rotor_RPM_follower.time,Rotor_RPM_follower.data,'k-.','linewidth',1.5)
+plot_areaerrorbar(PhaseSync.time+.05,PhaseSync.servo_speed_avg,PhaseSync.servo_speed_err,colors{1})
+plot_areaerrorbar(PhaseSync.time+.05,PhaseSync.follower_speed_avg,PhaseSync.follower_speed_err,colors{2})
+ylabel('$\Omega_{rotor}$, RPM')
+legend('Upper','Lower','Upper','Lower','location','northeast')
+xlim([-.1 1])
+formatfig
+grid on
+grid minor
+
+%Torque
+subplot(3,1,3)
+hold on
+plot(Q_total_servo.time,Q_total_servo.data*Cp_up_scale,'k-','linewidth',1.5)
+plot(Q_total_follower.time,Q_total_follower.data*Cp_lo_scale,'k-.','linewidth',1.5)
+plot_areaerrorbar(PhaseSync.time,PhaseSync.Torque_outer_avg,PhaseSync.Torque_outer_err,colors{1})
+plot_areaerrorbar(PhaseSync.time,PhaseSync.Torque_inner_avg,PhaseSync.Torque_inner_err,colors{2})
+ylabel('$Q_{rotor}$, $N\cdot m$')
+legend('Upper','Lower','Upper','Lower','location','southeast')
+xlim([-.1 1])
+formatfig
+grid on
+grid minor
+xlabel('Time, s')
+
+f10.Position = [326,236,674,561];
+
+%Estimated Response vs Time
+f11 = figure('Name','Estimated_Response_vs_time');
+
+%Position
+subplot(3,1,1)
+hold on
+plot(Act_angle_servo.time,(Act_angle_servo.data)/GR,'k-','linewidth',1.5)
+plot(Act_angle_follower.time,(Act_angle_follower.data+5)/GR,'k-.','linewidth',1.5)
 plot_areaerrorbar(PhaseSync.time+.03,PhaseSync.ref_ang1_avg,PhaseSync.ref_ang1_err,colors{1})
 plot_areaerrorbar(PhaseSync.time+.03,PhaseSync.ref_ang2_avg+.4,PhaseSync.ref_ang2_err,colors{2})
 ylabel('Rotor Angle, deg')
@@ -79,17 +132,19 @@ subplot(3,1,3)
 hold on
 plot(Q_total_servo.time,Q_total_servo.data,'k-','linewidth',1.5)
 plot(Q_total_follower.time,Q_total_follower.data/1.28,'k-.','linewidth',1.5)
-plot_areaerrorbar(PhaseSync.time+.03,PhaseSync.Q1_est_avg,PhaseSync.Q1_est_err,colors{1})
-plot_areaerrorbar(PhaseSync.time+.03,PhaseSync.Q2_est_avg,PhaseSync.Q2_est_err,colors{2})
+plot_areaerrorbar(PhaseSync.time+.03,PhaseSync.Q2_est_avg,PhaseSync.Q2_est_err,colors{1})
+plot_areaerrorbar(PhaseSync.time+.03,PhaseSync.Q1_est_avg,PhaseSync.Q1_est_err,colors{2})
 ylabel('$Q_{rotor}$, $N\cdot m$')
 legend('Upper','Lower','Upper','Lower','location','southeast')
 xlim([-.1 1])
 formatfig
 grid on
 grid minor
+xlabel('Time, s')
+f11.Position = [326,236,674,561];
 
 %Index
-f11 = figure('Name','Index_Angle_vs_Time');
+f12 = figure('Name','Index_Angle_vs_Time');
 hold on
 plot(index.time,index.data,'k-','linewidth',1.5)
 plot_areaerrorbar(PhaseSync.time+.03,PhaseSync.index_avg,PhaseSync.index_err,colors{1})
@@ -100,5 +155,8 @@ formatfig
 grid on
 grid minor
 
-% sgtitle('$+5^\circ$ Angle Offset','Fontsize',24)
-f10.Position = [326,236,674,561];
+%% Saving
+save_dir = uigetdir();
+saveas(f10,fullfile(save_dir,f10.Name),'jpg');
+saveas(f11,fullfile(save_dir,f11.Name),'jpg');
+saveas(f12,fullfile(save_dir,f12.Name),'jpg');

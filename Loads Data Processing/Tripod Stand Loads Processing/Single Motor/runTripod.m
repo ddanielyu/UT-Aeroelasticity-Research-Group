@@ -6,7 +6,7 @@ This processing code is a modification to the "LoadsProcessing.m" code, and
 essentially uses only fLoadData
 
 Written By: Matt Asper
-Date: 01 Dec 2021
+Date: 17 Feb 2022
 
 %}
 
@@ -15,39 +15,34 @@ load('colors.mat');
 
 %% Constants
 
-IQ_Trig = 9.5; %Apk spike from nominal IQ to find phase sync trigger
+Trig = 10; %rpm spike from nominal rpm to find phase sync trigger
 
-source_dir = pwd; %directory of MATLAB scripts
 %% Inputs
 files_dir = uigetdir(); %directory of .csv data files
 motors = input('Single or Dual Motor [s/d]: ','s');
-GR = input('Gear Ratio: ');
-collective = input('Collective [deg]: ');
+loads = input('Plot with loads? [y/n]: ','s');
 
+%% Change to correct directory for single vs dual motor
+dual = input('Dual Motor VI? [y/n]: ','s');
+
+source_dir = pwd; %directory of MATLAB scripts
 %% Load Data
 conditions = [54	29.88]; % [T(Farenh), % humidity, P(in.Hg)]
 
 [mdata,MeanData] = loadFiles(source_dir,files_dir,conditions); %load files
-[MeanData,StreamData] = loadStreamTripod(mdata,MeanData,source_dir,files_dir,collective); %load streamdata
+collective = mdata.MeanCollective(1);
+
+if exist('dual','var')
+    [MeanData,StreamData] = loadStreamTripod_dual(mdata,MeanData,source_dir,files_dir,dual); %load streamdata
+else
+    [MeanData,StreamData] = loadStreamTripod(mdata,MeanData,source_dir,files_dir,collective); %load streamdata
+end
+
+%Extract variables
+GR = mdata.GearRatio(1);
 
 %% Organize Steady and Phase Sync Tests
-
-% Check for phase sync or steady (torque pulse)
-fprintf('\nChecking for triggers...\n')
-for i = 1:length(StreamData.names)
-    nom_IQ = mean(StreamData.IQ{i});
-    if ismember(1,abs(StreamData.IQ{i} - nom_IQ) > IQ_Trig) 
-        %Phase Sync DID occur
-        if exist('phaseSync_test','var'); phaseSync_test{end+1} = StreamData.names{i};
-        else; phaseSync_test = {StreamData.names{i}}; end
-            
-    else
-        %Steady State test
-        if exist('steady_test','var'); steady_test{end+1} = StreamData.names{i};
-        else; steady_test = {StreamData.names{i}}; end
-    end
-        
-end
+phaseSync_test = mdata.Path;
 
 %% Process ALL Data
 fprintf('\nProcessing data sets...\n')
@@ -69,6 +64,16 @@ AvgData = fTotalAvg(RevData,SortedData,StreamData);
 
 
 %% Process Steady Data
+%clear loads to avoid corrupting plots
+if loads == 'n'
+    for i = 1:length(AvgData.avg_cts_inner)
+        AvgData.avg_cts_inner{i} = NaN;
+        AvgData.err_cts_inner{i} = NaN;
+        AvgData.avg_cps_inner{i} = NaN;
+        AvgData.err_cps_inner{i} = NaN;
+    end
+end
+
 fprintf('\nProcessing steady-only data...\n')
 
 if exist('steady_test','var')
@@ -79,43 +84,41 @@ end
 fprintf('\nRunning phase-sync processing...\n')
 if exist('phaseSync_test','var')
     offset = input('Offset Angle [deg]: ');
+    if isempty(motors) ~= 1 
+        slew = input('Angle Slew Rate [deg/s]: ');
+        [PhaseSync] = runPhaseSync_dual(StreamData,phaseSync_test,offset,Trig,GR,slew);
+    else 
+        [PhaseSync] = runPhaseSync_dual(StreamData,phaseSync_test,offset,Trig,GR);
+    end
     
-    [PhaseSync] = runPhaseSync(StreamData,phaseSync_test,offset,IQ_Trig,GR);
+    %clear loads to avoid corrupting plots
+    if loads == 'n'
+        for i = 1:length(PhaseSync.T_avg)
+            PhaseSync.T_avg{i} = NaN;
+            PhaseSync.T_err{i} = NaN;
+            PhaseSync.Torque_avg{i} = NaN;
+            PhaseSync.Torque_err{i} = NaN;
+        end
+    end
     
 end
-
-%% Load Simulink
-% plotsim = input('Plot with Sim [y/n]: ','s');
-% 
-% if plotsim == 'y'
-%     fprintf('Select Sim File to Load...\n');
-%     [sim_file,sim_path] = uigetfile(strcat('/Users/asper101/Box Sync/For Matt/3rd Year/Electromechanical Modeling/'));
-%     load(fullfile(sim_path,sim_file));
-%     sim_step = 8;
-%     Angle_err.time = Angle_err.time - sim_step;
-%     Act_angle.time = Act_angle.time - sim_step;
-%     Motor_RPM.time = Motor_RPM.time - sim_step;
-%     Q_total.time = Q_total.time - sim_step;
-% %     nRev.time = nRev.time - sim_step;
-% end
-% 
-% [~,full_step] = min(abs(nRev.time - sim_step));
-% [~,full_step1] = min(abs(nRev.time - sim_step + 0.1));
-% nRev_new = nRev.data;
 
 %% Plotting
 close all; clc;
 
-if exist('steady_test','var'); [f1,f2,f3,f4] = plotSteady(Averages,collective); end
-if exist('phaseSync_test','var'); [f5,f6,f7] = plotPhaseSync(PhaseSync,phaseSync_test); end
+if exist('steady_test','var') && length(steady_test) ~= 1; [f1,f2,f3,f4] = plotSteady(Averages,collective); end
+if exist('phaseSync_test','var'); [f5,f6,f7] = plotPhaseSync_dual(PhaseSync,loads); end
 
 
 %% Saving
 save_dir = uigetdir();
-saveas(f1,fullfile(save_dir,f1.Name),'jpg')
-saveas(f2,fullfile(save_dir,f2.Name),'jpg')
-saveas(f3,fullfile(save_dir,f3.Name),'jpg')
-saveas(f4,fullfile(save_dir,f4.Name),'jpg')
+save(fullfile(save_dir,'Data'),'PhaseSync');
+if exist('f1','var')
+    saveas(f1,fullfile(save_dir,f1.Name),'jpg')
+    saveas(f2,fullfile(save_dir,f2.Name),'jpg')
+    saveas(f3,fullfile(save_dir,f3.Name),'jpg')
+    saveas(f4,fullfile(save_dir,f4.Name),'jpg')
+end
 saveas(f5,fullfile(save_dir,f5.Name),'jpg')
 saveas(f6,fullfile(save_dir,f6.Name),'jpg')
 saveas(f7,fullfile(save_dir,f7.Name),'jpg')

@@ -56,7 +56,7 @@ c = 0.08;
 Nblade = 2;
 StreamData.sigma = StreamData.R*c*Nblade / (pi*StreamData.R^2);
 
-SR = 10000; % SAMPLE RATE
+SR = input('Sample Rate: '); % SAMPLE RATE
 Naz = 1000;   % dpsi = 0.36 deg
 enc = 'y';
 

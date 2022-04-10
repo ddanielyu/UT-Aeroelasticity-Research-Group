@@ -59,7 +59,7 @@ mdata(row2rm,:) = [];
 StreamData.names(row2rm,:) = [];
 
 % find nominal RPM : actual RPM within closest 5 RPM. 898 -> 900, 901 -> 900
-MeanData.RPMs = (round(mdata{:,'RPM'}/5))*5;  
+MeanData.RPMs = (round(mdata{:,'ServoRPM'}/5))*5;  
 
 
 %% LOAD AND PROCESS STREAMING FILES
@@ -67,8 +67,7 @@ rotor = 'Uber';
 
 switch (rotor)
     case 'Uber'
-        MeanData.meancols = ones(length(mdata{:,'MeanCollective'}),1)*collective;
-        MeanData.diffcols = mdata{:,'DifferentialCollective'};
+        MeanData.meancols = ones(length(mdata{:,'MeanCollective'}),1);
         MeanData.zcs = mdata{:,'AxialSpacing'};
         MeanData.phis = mdata{:,'IndexAngle'};
         MeanData.rhos = mdata{:,'rho'};
@@ -120,14 +119,14 @@ for k = 1:nfiles
     StreamData.ax{k} = data{:,axcol};                %M
     StreamData.ay{k} = data{:,aycol};                %N
     StreamData.encoder{k} = abs(data{:,enccol});          %W
-    StreamData.unwrap{k} = unwrap_az(StreamData.encoder{k}); %unwrap the azimuth
+    StreamData.unwrap{k} = StreamData.encoder{k}; %unwrap the azimuth
     StreamData.curr1{k} = data{:,curr1col};          %W
     StreamData.curr2{k} = data{:,curr2col};          %W
     StreamData.curr3{k} = -1*(StreamData.curr1{k} + StreamData.curr2{k});          %W
     StreamData.IQ{k} = parkClarke(StreamData.curr1{k},StreamData.curr2{k},StreamData.curr3{k}); 
     StreamData.bus_curr{k} = data{:,buscol};          %W
-    StreamData.rpm{k} = (StreamData.unwrap{k}(2:end) - StreamData.unwrap{k}(1:end-1))/.0001/360*60;
-    StreamData.rpm{k} = fcleanup(StreamData.rpm{k}, 'smoothdata', 'loess', 700);
+    StreamData.rpm{k} = (StreamData.unwrap{k}(2:end) - StreamData.unwrap{k}(1:end-1))*Fs/360*60;
+%     StreamData.rpm{k} = fcleanup(StreamData.rpm{k}, 'smoothdata', 'loess', 700);
     StreamData.revolution{k} = data{:,revcol};       %X
     StreamData.nrevs{k} = StreamData.revolution{k}(end);
     
@@ -137,17 +136,38 @@ for k = 1:nfiles
     
     %% CREATE REV COUNTER
     revnum = 0;
+    StreamData.encoder{k} = StreamData.encoder{k} - StreamData.encoder{k}(1);
+    
     for i = 1:length(StreamData.encoder{k})-1
-        StreamData.revolution{k}(i,1) = revnum;
-        if (StreamData.encoder{k}(i) > 359)&& (StreamData.encoder{k}(i+1) < 1)
+        if StreamData.encoder{k}(i) > 360
+            StreamData.encoder{k}(i:end) = StreamData.encoder{k}(i:end) - StreamData.encoder{k}(i);
             revnum = revnum + 1; 
         end
     end
-    StreamData.revolution{k}(length(StreamData.encoder{k}),1) = revnum;
+    StreamData.revolution{k} = StreamData.revolution{k} - StreamData.revolution{k}(1);
     StreamData.nrevs{k} = revnum;
 end
 
 cd(source_dir);   % return to original directory
+
+end
+
+function Q = parkClarke(A,B,C)
+%This function calculates the quadrature (Q) current from A,
+%B, and C phase currents by assuming all current produced from controller
+%is IQ
+%{
+Inputs: 
+A,B,C -- phase currents (column vectors)
+
+Outputs:
+Q -- Quadrature current (column vector)
+%}
+
+for i = 1:length(A)
+    Q(i) = sqrt(2/3)*norm([A(i) B(i) C(i)]);
+end
+Q = Q';
 
 end
 

@@ -23,13 +23,7 @@ motors = input('Single or Dual Motor [s/d]: ','s');
 loads = input('Plot with loads? [y/n]: ','s');
 
 %% Change to correct directory for single vs dual motor
-if motors == 's'
-    cd('Single Motor'); 
-    %Check if before or after switch to dual motor
-    dual = input('Dual Motor VI? [y/n]: ','s');
-elseif motors == 'd'; cd('Dual Motor'); 
-elseif isempty(motors); cd('Tripod Pre-Feb 2022'); Trig = 10;
-end
+dual = input('Dual Motor VI? [y/n]: ','s');
 
 source_dir = pwd; %directory of MATLAB scripts
 %% Load Data
@@ -48,33 +42,7 @@ end
 GR = mdata.GearRatio(1);
 
 %% Organize Steady and Phase Sync Tests
-
-% Check for phase sync or steady (torque pulse)
-fprintf('\nChecking for triggers...\n')
-for i = 1:length(StreamData.names)
-    nom_IQ = mean(StreamData.IQ{i});
-    if contains(StreamData.names{i},'-0') == 0 && exist('dual','var') == 0
-        %Phase Sync DID occur
-        if exist('phaseSync_test','var'); phaseSync_test{end+1} = StreamData.names{i};
-        else; phaseSync_test = {StreamData.names{i}}; end
-    
-    elseif ismember(1,abs(StreamData.Mz_inner{i} - mean(StreamData.Mz_inner{i})) > Trig) && isempty(motors)
-        %Phase Sync DID occur
-        if exist('phaseSync_test','var'); phaseSync_test{end+1} = StreamData.names{i};
-        else; phaseSync_test = {StreamData.names{i}}; end
-        
-    elseif ismember(1,abs(StreamData.Mz_inner{i} - mean(StreamData.Mz_inner{i})) > Trig) && exist('dual','var')
-        %Phase Sync DID occur
-        if exist('phaseSync_test','var'); phaseSync_test{end+1} = StreamData.names{i};
-        else; phaseSync_test = mdata.Path; end
-            
-    else
-        %Steady State test
-        if exist('steady_test','var'); steady_test{end+1} = StreamData.names{i};
-        else; steady_test = {StreamData.names{i}}; end
-    end
-        
-end
+phaseSync_test = mdata.Path;
 
 %% Process ALL Data
 fprintf('\nProcessing data sets...\n')

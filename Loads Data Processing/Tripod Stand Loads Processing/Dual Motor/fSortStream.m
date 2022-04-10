@@ -72,10 +72,11 @@ for k = 1:length(StreamData.names)
     for n = 1:StreamData.nrev1{k}
         StreamData.binsize1{k}(n) = sum(StreamData.revolution1{k}(:) == n-1);
     end
-    
+
     for n = 1:StreamData.nrev2{k}
         StreamData.binsize2{k}(n) = sum(StreamData.revolution2{k}(:) == n-1);
     end
+            
     
     StreamData.OMEGA1{k} = SR./StreamData.binsize1{k} * 2 * pi;
     SortedData.binsize1{k} = StreamData.binsize1{k};
