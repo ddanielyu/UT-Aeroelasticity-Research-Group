@@ -19,7 +19,7 @@ Trig = 6; %rpm spike from nominal rpm to find phase sync trigger
 source_dir = pwd; %directory of MATLAB scripts
 
 %% Inputs
-files_dir = '/Volumes/My Passport/UT Austin/Research/Spring 2022 Dual Motor Data'; %directory of .csv data files
+files_dir = 'C:\Users\admin-local\Desktop\Research\02 Data\Streaming'; %directory of .csv data files
 
 %% Load Data
 conditions = [54	29.88]; % [T(Farenh), % humidity, P(in.Hg)]
@@ -65,7 +65,7 @@ if isempty(phaseSync_test) == 0; [f4,f5,f6,f7,f8] = plotPhaseSync(PhaseSync); en
 
 
 %% Saving
-save_dir = uigetdir('C:\Users\admin-local\Box\For Matt\3rd Year\Tripod Stand\Test Data');
+save_dir = uigetdir('H:\UT Austin\Research\Spring 2022 Dual Motor Data');
 %Data
 if exist('PhaseSync','var') && exist('Averages','var')
     save(fullfile(save_dir,'Data'),'PhaseSync','Averages');

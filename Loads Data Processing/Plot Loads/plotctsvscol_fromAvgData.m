@@ -9,23 +9,15 @@ for i = 1:length(AvgData_corr.avg_cps_inner)
     AvgData_corr.avg_cps_total{i} = (AvgData_corr.avg_cps_inner{i}+ AvgData_corr.avg_cps_outer{i})./2;
 end
 
-for i = 1:length(AvgData_corr.avg_cps_inner)
-    AvgData_corr.avg_cts_inner{i} = AvgData_corr.avg_cts_inner{i};
-    AvgData_corr.avg_cts_total{i} = (AvgData_corr.avg_cts_inner{i}+ AvgData_corr.avg_cts_outer{i})./2;
- 
-    AvgData_corr.avg_cps_inner{i} = AvgData_corr.avg_cps_inner{i};
-    AvgData_corr.avg_cps_total{i} = (AvgData_corr.avg_cps_inner{i}+ AvgData_corr.avg_cps_outer{i})./2;
-end
-
 
 %% INPUTS
-RPM_des = 1200; 
+RPM_des = 1250; 
 phi_des = 2; 
 diffcol_des = 0; 
 
 c=4;
-upcolor = colors{5};
-locolor = colors{2};
+upcolor = colors{3};
+locolor = 'r';
 totcolor = colors{1};
 
 fontsize = 20;
@@ -76,7 +68,7 @@ figure(1)
 hold on
 errorbar(col_uni,CTlo,CTloerr, 's--','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1)
 hold on
-errorbar(col_uni,CTup,CTuperr,'^:','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1)
+errorbar(col_uni,-CTup,CTuperr,'^:','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1)
 errorbar(col_uni,CT_data,CTerr,'.-','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1,'MarkerSize',10)
 xlabel('Collective, \theta_0 [deg]')
 ylabel('C_T/ \sigma')
@@ -95,7 +87,7 @@ figure(2)
 hold on
 errorbar(col_uni,CPlo,CPloerr, 's','color',locolor,'MarkerEdgeColor',locolor,'MarkerFaceColor',locolor,'LineWidth', 1)
 hold on
-errorbar(col_uni,CPup,CPuperr,'^','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1)
+errorbar(col_uni,-CPup,CPuperr,'^','color',upcolor,'MarkerEdgeColor',upcolor,'MarkerFaceColor',upcolor,'LineWidth', 1)
 % errorbar(col_uni,CP_data,CPerr, 'o','color',totcolor,'MarkerEdgeColor',totcolor,'MarkerFaceColor',totcolor,'LineWidth', 1)
 xlabel('Collective, \theta_0 [deg]')
 ylabel('C_P/ \sigma')
