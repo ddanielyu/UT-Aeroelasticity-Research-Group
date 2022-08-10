@@ -27,7 +27,7 @@ P_BEMT = Cp_BEMT*Averages.rho{1}*pi*Averages.R^2*(RPM*2*pi/60*Averages.R).^3;
 %% Plotting
 f1 = figure('Name','Steady Ct versus Index Angle');
 hold on
-yline(Ct_BEMT/Averages.sigma,'k--','Linewidth',1.5)
+yline(Ct_BEMT/(2*Averages.sigma),'k--','4-bladed','Linewidth',1.5)
 errorbar(cell2mat(Averages.index_avg),cell2mat(Averages.cts_up_avg),...
     cell2mat(Averages.cts_up_err),cell2mat(Averages.cts_up_err),...
     cell2mat(Averages.index_err),cell2mat(Averages.index_err),'^:','color',colors{1},...
@@ -49,7 +49,7 @@ hold off
 
 f2 = figure('Name','Steady Cp versus Index Angle');
 hold on
-yline(Cp_BEMT/Averages.sigma,'k--','Linewidth',1.5)
+yline(Cp_BEMT/(2*Averages.sigma),'k--','4-bladed','Linewidth',1.5)
 errorbar(cell2mat(Averages.index_avg),cell2mat(Averages.cps_up_avg),...
     cell2mat(Averages.cps_up_err),cell2mat(Averages.cps_up_err),...
     cell2mat(Averages.index_err),cell2mat(Averages.index_err),'^:','color',colors{1},...
@@ -65,13 +65,13 @@ errorbar(cell2mat(Averages.index_avg),cell2mat(Averages.cps_avg),...
 xlabel('$\phi$ [deg]')
 ylabel('$C_P/\sigma$ [-]')
 legend('BEMT','Upper','Lower','Total','location','southeast')
-ylim([-inf (Cp_BEMT/Averages.sigma+0.001)])
+% ylim([-inf (Cp_BEMT/Averages.sigma+0.001)])
 formatfig
 hold off
 
 f3 = figure('Name','Estimated Cps versus Index Angle');
 hold on
-yline(Cp_BEMT/Averages.sigma,'k--','Linewidth',1.5)
+yline(Cp_BEMT/(2*Averages.sigma),'k--','4-bladed','Linewidth',1.5)
 errorbar(cell2mat(Averages.index_avg),cell2mat(Averages.cps_up_est_avg),...
     cell2mat(Averages.cps_up_est_err),cell2mat(Averages.cps_up_est_err),...
     cell2mat(Averages.index_err),cell2mat(Averages.index_err),'^:','color',colors{1},...
@@ -87,7 +87,7 @@ errorbar(cell2mat(Averages.index_avg),cell2mat(Averages.cps_est_avg),...
 xlabel('$\phi$ [deg]')
 ylabel('$C_P/\sigma$ [-]')
 legend('BEMT','Upper','Lower','Total','location','southeast')
-ylim([-inf (Cp_BEMT/Averages.sigma+0.003)])
+% ylim([-inf (Cp_BEMT/Averages.sigma+0.003)])
 formatfig
 hold off
 

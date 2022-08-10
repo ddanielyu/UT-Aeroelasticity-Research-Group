@@ -19,7 +19,7 @@ Trig = 6; %rpm spike from nominal rpm to find phase sync trigger
 source_dir = pwd; %directory of MATLAB scripts
 
 %% Inputs
-files_dir = 'C:\Users\admin-local\Desktop\Research\02 Data\Streaming'; %directory of .csv data files
+files_dir = '/Volumes/My Passport/UT Austin/Research/Spring 2022 Dual Motor Data'; %directory of .csv data files
 
 %% Load Data
 conditions = [54	29.88]; % [T(Farenh), % humidity, P(in.Hg)]
@@ -61,20 +61,20 @@ end
 close all; clc;
 
 if isempty(steady_test) == 0 && length(steady_test) ~= 1; [f1,f2,f3] = plotSteady(Averages,collective); end
-if isempty(phaseSync_test) == 0; [f4,f5,f6,f7,f8] = plotPhaseSync(PhaseSync); end
+if isempty(phaseSync_test) == 0; [f4,f5,f6,f7,f8,f9] = plotPhaseSync(PhaseSync); end
 
 
 %% Saving
 save_dir = uigetdir('H:\UT Austin\Research\Spring 2022 Dual Motor Data');
 %Data
 if exist('PhaseSync','var') && exist('Averages','var')
-    save(fullfile(save_dir,'Data'),'PhaseSync','Averages');
+%     save(fullfile(save_dir,'Data'),'PhaseSync','Averages');
 
 elseif exist('PhaseSync','var')
-    save(fullfile(save_dir,'Data'),'PhaseSync');
+%     save(fullfile(save_dir,'Data'),'PhaseSync');
 
 elseif exist('Averages','var')
-    save(fullfile(save_dir,'Data'),'Averages');
+%     save(fullfile(save_dir,'Data'),'Averages');
 end
 
 %Plots
@@ -89,6 +89,7 @@ if exist('f5','var')
     saveas(f6,fullfile(save_dir,f6.Name),'jpg')
     saveas(f7,fullfile(save_dir,f7.Name),'jpg')
     saveas(f8,fullfile(save_dir,f8.Name),'jpg')
+    saveas(f9,fullfile(save_dir,f9.Name),'jpg')
 end
 
 

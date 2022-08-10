@@ -20,6 +20,8 @@ Torque "; Torque_avg; Torque_err; (motor torque!!)
 %% Constants
 Kt = 0.675; %[N-m/Arms] Estimated torque constant based on 12/16/2021 tripod stand testing of Q-I Curve Fit
 
+I = 0.3578; %ineria (measured) [kg*m^2]
+
 Fb = 8; %[N]
 Mb = 1.5; %[N-m]
 
@@ -59,10 +61,16 @@ for i = 1:length(phaseSync_test)
     start = int64(start);
     
     RPM1 = (StreamData.encoder1{i}(2:end) - StreamData.encoder1{i}(1:end-1))*Fs/360*60;
+    Accel1 = (RPM1(2:end) - RPM1(1:end-1))*2*pi/60*Fs;
+    
     RPM1 = fcleanup(RPM1, 'smoothdata', 'loess', 700);
+    Accel1 = fcleanup(Accel1, 'smoothdata', 'loess', 700);
     
     RPM2 = (StreamData.encoder2{i}(2:end) - StreamData.encoder2{i}(1:end-1))*Fs/360*60;
+    Accel2 = (RPM2(2:end) - RPM2(1:end-1))*2*pi/60*Fs;
+    
     RPM2 = fcleanup(RPM2, 'smoothdata', 'loess', 700);
+    Accel2 = fcleanup(Accel2, 'smoothdata', 'loess', 700);
     
     % non-dimensionalization factor for CT
     ct_den1 = StreamData.rho{i} * (pi * StreamData.R^2) * (mean(RPM1)*2*pi/60*StreamData.R).^2;
@@ -128,8 +136,11 @@ for i = 1:length(phaseSync_test)
 
     time            = Time - Time(start); time = time(idx_trig);%get time vect
     time0           = Time - Time(start); time0 = time0(idx_trig - 1);
-    Mz_outer_trans(:,i)   = fcleanup(StreamData.Mz_outer{i}(idx_trig),'smoothdata','loess',250);
-    Mz_inner_trans(:,i)   = fcleanup(StreamData.Mz_inner{i}(idx_trig),'smoothdata','loess',250);
+    Mz_outer = fcleanup(StreamData.Mz_outer{i},'smoothdata','loess',250);
+    Mz_inner = fcleanup(StreamData.Mz_inner{i},'smoothdata','loess',250);
+    
+    Mz_outer_trans(:,i)   = Mz_outer(idx_trig);
+    Mz_inner_trans(:,i)   = Mz_inner(idx_trig);
     Q1_est_trans(:,i)   = fcleanup(StreamData.IQ1{i}(idx_trig)*Kt/sqrt(2)*GR,'smoothdata','loess',300); %estimated servo rotor torque
     Q2_est_trans(:,i)   = fcleanup(StreamData.IQ2{i}(idx_trig)*Kt/sqrt(2)*GR,'smoothdata','loess',300); %estimated follower rotor torque
     RPM1_trans            = RPM1(idx_trig);
@@ -161,6 +172,10 @@ for i = 1:length(phaseSync_test)
     PhaseSync.follower_speed(:,ij) = RPM2_trans;
     PhaseSync.Torque_outer(:,ij) = Mz_outer_trans(:,i);
     PhaseSync.Torque_inner(:,ij) = Mz_inner_trans(:,i);
+    PhaseSync.Inertial_Torque_outer(:,ij) = Accel1(idx_trig)*I;
+    PhaseSync.Inertial_Torque_inner(:,ij) = Accel2(idx_trig)*I;
+    PhaseSync.Aero_Torque_outer(:,ij) = PhaseSync.Torque_outer(:,ij) - PhaseSync.Inertial_Torque_outer(:,ij);
+    PhaseSync.Aero_Torque_inner(:,ij) = PhaseSync.Torque_inner(:,ij) - PhaseSync.Inertial_Torque_inner(:,ij);
     PhaseSync.Q1_est(:,ij) = Q1_est_trans(:,i);
     PhaseSync.Q2_est(:,ij) = Q2_est_trans(:,i);
     
@@ -197,10 +212,26 @@ PhaseSync.servo_speed_avg = mean(PhaseSync.servo_speed');
 PhaseSync.servo_speed_err = tinv(.975,size(PhaseSync.servo_speed,2)) * std(PhaseSync.servo_speed')/sqrt(size(PhaseSync.servo_speed,2));
 PhaseSync.follower_speed_avg = mean(PhaseSync.follower_speed');
 PhaseSync.follower_speed_err = tinv(.975,size(PhaseSync.follower_speed,2)) * std(PhaseSync.follower_speed')/sqrt(size(PhaseSync.follower_speed,2));
+
+%load cell torque
 PhaseSync.Torque_outer_avg = mean(PhaseSync.Torque_outer');
 PhaseSync.Torque_outer_err = tinv(.975,size(PhaseSync.Torque_outer,2)) * sqrt(std(PhaseSync.Torque_outer').^2 + Mb^2)/sqrt(size(PhaseSync.Torque_outer,2));
 PhaseSync.Torque_inner_avg = mean(PhaseSync.Torque_inner');
 PhaseSync.Torque_inner_err = tinv(.975,size(PhaseSync.Torque_inner,2)) * sqrt(std(PhaseSync.Torque_inner').^2 + Mb^2)/sqrt(size(PhaseSync.Torque_inner,2));
+
+%inertial torque
+PhaseSync.InertialQ_outer_avg = mean(PhaseSync.Inertial_Torque_outer');
+PhaseSync.InertialQ_outer_err = tinv(.975,size(PhaseSync.Inertial_Torque_outer,2)) * std(PhaseSync.Inertial_Torque_outer')/sqrt(size(PhaseSync.Inertial_Torque_outer,2));
+PhaseSync.InertialQ_inner_avg = mean(PhaseSync.Inertial_Torque_inner');
+PhaseSync.InertialQ_inner_err = tinv(.975,size(PhaseSync.Inertial_Torque_inner,2)) * std(PhaseSync.Inertial_Torque_inner')/sqrt(size(PhaseSync.Inertial_Torque_inner,2));
+
+%aero torque
+PhaseSync.AeroQ_outer_avg = mean(PhaseSync.Aero_Torque_outer');
+PhaseSync.AeroQ_outer_err = sqrt(PhaseSync.InertialQ_outer_err.^2 + PhaseSync.Torque_outer_err.^2);
+PhaseSync.AeroQ_inner_avg = mean(PhaseSync.Aero_Torque_inner');
+PhaseSync.AeroQ_inner_err = sqrt(PhaseSync.InertialQ_inner_err.^2 + PhaseSync.Torque_inner_err.^2);
+
+
 PhaseSync.Q1_est_avg = mean(PhaseSync.Q1_est');
 PhaseSync.Q1_est_err = tinv(.975,size(PhaseSync.Q1_est,2)) * sqrt(std(PhaseSync.Q1_est').^2 + (IQ_b*Kt/sqrt(2)*GR)^2)/sqrt(size(PhaseSync.Q1_est,2));
 PhaseSync.Q2_est_avg = mean(PhaseSync.Q2_est');
