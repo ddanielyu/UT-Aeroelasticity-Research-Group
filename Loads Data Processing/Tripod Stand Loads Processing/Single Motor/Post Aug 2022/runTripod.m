@@ -2,7 +2,7 @@
 This script processes data from Aug 8, 2022-Present Tripod Stand Testing. Either
 steady-state or phase-sync data can be processed.
 
-This processing code uses the 2202XX Labview code (single motor)
+This processing code uses the 220212 Labview code (single motor)
 
 Written By: Matt Asper
 Date: 08 Aug 2022

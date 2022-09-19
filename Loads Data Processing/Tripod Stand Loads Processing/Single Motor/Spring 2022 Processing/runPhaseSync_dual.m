@@ -62,9 +62,20 @@ for i = 1:length(phaseSync_test)
 %     end
     
 %     start = start; %adjust for delay in rpm trig due to smoothing
-    
-    StreamData.rpm{i} = fcleanup(StreamData.rpm{i},'smoothdata', 'loess', 700);
-    StreamData.accel{i} = fcleanup(StreamData.accel{i},'smoothdata', 'loess', 700);
+
+    %Filter Data 
+%     StreamData.rpm{i} = fcleanup(StreamData.rpm{i},'smoothdata', 'loess', 700);    
+%     StreamData.accel{i} = fcleanup(StreamData.accel{i},'smoothdata', 'loess', 700);
+%     StreamData.Mz_inner{i} = fcleanup(StreamData.Mz_inner{i},'smoothdata','loess',250);
+%     StreamData.Fz_inner{i} = fcleanup(StreamData.Fz_inner{i}, 'smoothdata', 'loess', 700);
+%     StreamData.IQ{i} = fcleanup(StreamData.IQ{i},'smoothdata','loess',500); %estimated motor torque based on IQ and Kt
+    StreamData.rpm{i} = savitzkyGolayFilt(StreamData.rpm{i},2,0,401);
+    StreamData.accel{i} = savitzkyGolayFilt(StreamData.accel{i},2,0,401);
+    StreamData.accel{i} = savitzkyGolayFilt(StreamData.accel{i},2,0,401);
+    StreamData.Mz_inner{i} = savitzkyGolayFilt(StreamData.Mz_inner{i},2,0,401);
+    dTdt        = (StreamData.Fz_inner{i}(2:end) - StreamData.Fz_inner{i}(1:end-1))*Fs;
+    StreamData.Fz_inner{i} = savitzkyGolayFilt(StreamData.Fz_inner{i},2,0,401);
+    StreamData.IQ{i} = savitzkyGolayFilt(StreamData.IQ{i},2,0,401); %estimated motor torque based on IQ and Kt
     
     rpm_motor0  = mean(StreamData.rpm{i}(1:start));                         %avg motor rpm prior to trig
 
@@ -99,40 +110,42 @@ for i = 1:length(phaseSync_test)
     
     if start < Fs/4; continue; end
     
-%     StreamData.Mz_inner{i} = fcleanup(StreamData.Mz_inner{i},'smoothdata','loess',250);
-%     StreamData.Fz_inner{i} = fcleanup(StreamData.Fz_inner{i},'smoothdata','loess',300,20);
-    
+
     time            = Time - Time(start); time = time(idx_trig);%get time vect
     time0           = Time - Time(start); time0 = time0(idx_trig - 1);
     Mz_trans(:,i)   = StreamData.Mz_inner{i}(idx_trig);
-    Q_est_trans(:,i)   = fcleanup(StreamData.IQ{i}(idx_trig)*Kt/sqrt(2),'smoothdata','loess',500); %estimated motor torque based on IQ and Kt
+    Q_est_trans(:,i)   = StreamData.IQ{i}(idx_trig)*Kt/sqrt(2); %estimated motor torque based on IQ and Kt
     RPM_dazdt(:,i)  = StreamData.rpm{i}(idx_trig);
     Angle_err(:,i)  = StreamData.angle_err{i}(idx_trig);
     Ref_angle(:,i)     = ref_angle(idx_trig);
     Meas_angle(:,i) = hi(idx_trig);
     
-    T           = fcleanup(StreamData.Fz_inner{i}, 'smoothdata', 'loess', 700);
-    T_trans(:,i)  = T(idx_trig);
-
-%     T_trans   = abs(fcleanup(StreamData.Fz_inner{i}, 'smoothdata', 'loess', 1000));
-%     T_trans(:,i)  = T_trans(:,i)(idx_trig);
-%     T_trans(:,i)  = fcleanup(T_trans(:,i), 0, 1, 50, 10, Fs, rpm_motor0*2*pi/60);
-
+    T           = StreamData.Fz_inner{i};
+    T_trans     = T(idx_trig);
+    
+    %calc dT/dt to compare with Thrust variations due to RPM
+    dTdt        = savitzkyGolayFilt(dTdt,2,0,401);
+    dTdt        = savitzkyGolayFilt(dTdt,2,0,401);
+    dTdt_trans  = dTdt(idx_trig);
+    
     PhaseSync.Meas_angle(:,i) = Meas_angle(:,i); %get time vec
     PhaseSync.time = time; %get time vect
-    PhaseSync.Thrust(:,i) = T_trans(:,i);
+    PhaseSync.Thrust(:,i) = T_trans;
+    PhaseSync.dTdt(:,i) = dTdt_trans;
     PhaseSync.Angle_err(:,i) = StreamData.angle_err{i}(idx_trig);
     PhaseSync.Ref_angle(:,i) = Ref_angle(:,i);
     PhaseSync.Speed(:,i) = RPM_dazdt(:,i);
     PhaseSync.Torque(:,i) = Mz_trans(:,i)/GR;
     PhaseSync.Q_est(:,i) = Q_est_trans(:,i);
-    PhaseSync.Cts(:,i) = T_trans(:,i)./(StreamData.rho{i}*pi*StreamData.R^2.*(PhaseSync.Speed(:,i)*2*pi/60*StreamData.R).^2*StreamData.sigma);
+    PhaseSync.Cts(:,i) = T_trans./(StreamData.rho{i}*pi*StreamData.R^2.*(PhaseSync.Speed(:,i)*2*pi/60*StreamData.R).^2*StreamData.sigma);
     PhaseSync.accel(:,i) = StreamData.accel{i}(idx_trig);
 end
 
 PhaseSync.rev = mean(PhaseSync.Meas_angle');
 PhaseSync.T_avg = mean(PhaseSync.Thrust');
 PhaseSync.T_err = tinv(.975,size(PhaseSync.Thrust,2)) * sqrt(std(PhaseSync.Thrust').^2 + Fb^2)/sqrt(size(PhaseSync.Thrust,2));
+PhaseSync.dTdt_avg = mean(PhaseSync.dTdt');
+PhaseSync.dTdt_err = tinv(.975,size(PhaseSync.dTdt,2)) * std(PhaseSync.dTdt')/sqrt(size(PhaseSync.dTdt,2));
 PhaseSync.Ang_err_avg = mean(PhaseSync.Angle_err');
 PhaseSync.Ang_err_err = tinv(.975,size(PhaseSync.Angle_err,2)) * sqrt(std(PhaseSync.Angle_err').^2 + Az_b^2)/sqrt(size(PhaseSync.Angle_err,2));
 PhaseSync.ref_ang_avg = mean(PhaseSync.Ref_angle');

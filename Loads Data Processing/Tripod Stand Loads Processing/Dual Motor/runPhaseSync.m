@@ -63,14 +63,18 @@ for i = 1:length(phaseSync_test)
     RPM1 = (StreamData.encoder1{i}(2:end) - StreamData.encoder1{i}(1:end-1))*Fs/360*60;
     Accel1 = (RPM1(2:end) - RPM1(1:end-1))*2*pi/60*Fs;
     
-    RPM1 = fcleanup(RPM1, 'smoothdata', 'loess', 700);
-    Accel1 = fcleanup(Accel1, 'smoothdata', 'loess', 700);
+%     RPM1 = fcleanup(RPM1, 'smoothdata', 'loess', 700);
+%     Accel1 = fcleanup(Accel1, 'smoothdata', 'loess', 700);
+    RPM1 = savitzkyGolayFilt(RPM1, 2, 0, 401);
+    Accel1 = savitzkyGolayFilt(Accel1, 2, 0, 401);
     
     RPM2 = (StreamData.encoder2{i}(2:end) - StreamData.encoder2{i}(1:end-1))*Fs/360*60;
     Accel2 = (RPM2(2:end) - RPM2(1:end-1))*2*pi/60*Fs;
     
-    RPM2 = fcleanup(RPM2, 'smoothdata', 'loess', 700);
-    Accel2 = fcleanup(Accel2, 'smoothdata', 'loess', 700);
+%     RPM2 = fcleanup(RPM2, 'smoothdata', 'loess', 700);
+%     Accel2 = fcleanup(Accel2, 'smoothdata', 'loess', 700);
+    RPM2 = savitzkyGolayFilt(RPM2, 2, 0, 401);
+    Accel2 = savitzkyGolayFilt(Accel2, 2, 0, 401);
     
     % non-dimensionalization factor for CT
     ct_den1 = StreamData.rho{i} * (pi * StreamData.R^2) * (mean(RPM1)*2*pi/60*StreamData.R).^2;
@@ -136,13 +140,17 @@ for i = 1:length(phaseSync_test)
 
     time            = Time - Time(start); time = time(idx_trig);%get time vect
     time0           = Time - Time(start); time0 = time0(idx_trig - 1);
-    Mz_outer = fcleanup(StreamData.Mz_outer{i},'smoothdata','loess',250);
-    Mz_inner = fcleanup(StreamData.Mz_inner{i},'smoothdata','loess',250);
+%     Mz_outer = fcleanup(StreamData.Mz_outer{i},'smoothdata','loess',250);
+%     Mz_inner = fcleanup(StreamData.Mz_inner{i},'smoothdata','loess',250);
+    Mz_outer = savitzkyGolayFilt(StreamData.Mz_outer{i}, 2, 0, 401);
+    Mz_inner = savitzkyGolayFilt(StreamData.Mz_inner{i}, 2, 0, 401);
     
     Mz_outer_trans(:,i)   = Mz_outer(idx_trig);
     Mz_inner_trans(:,i)   = Mz_inner(idx_trig);
-    Q1_est_trans(:,i)   = fcleanup(StreamData.IQ1{i}(idx_trig)*Kt/sqrt(2)*GR,'smoothdata','loess',300); %estimated servo rotor torque
-    Q2_est_trans(:,i)   = fcleanup(StreamData.IQ2{i}(idx_trig)*Kt/sqrt(2)*GR,'smoothdata','loess',300); %estimated follower rotor torque
+%     Q1_est_trans(:,i)   = fcleanup(StreamData.IQ1{i}(idx_trig)*Kt/sqrt(2)*GR,'smoothdata','loess',300); %estimated servo rotor torque
+%     Q2_est_trans(:,i)   = fcleanup(StreamData.IQ2{i}(idx_trig)*Kt/sqrt(2)*GR,'smoothdata','loess',300); %estimated follower rotor torque
+    Q1_est_trans(:,i) = savitzkyGolayFilt(StreamData.IQ1{i}(idx_trig)*Kt/sqrt(2)*GR, 2, 0, 401);
+    Q2_est_trans(:,i) = savitzkyGolayFilt(StreamData.IQ2{i}(idx_trig)*Kt/sqrt(2)*GR, 2, 0, 401);
     RPM1_trans            = RPM1(idx_trig);
     RPM2_trans            = RPM2(idx_trig);
     Angle_err1(:,i)  = StreamData.angle_err1{i}(idx_trig);
@@ -152,8 +160,10 @@ for i = 1:length(phaseSync_test)
     Meas_angle1(:,i) = bias_angle1(idx_trig);
     Meas_angle2(:,i) = bias_angle2(idx_trig);
 
-    T_outer = fcleanup(abs(StreamData.Fz_outer{i}),'smoothdata','loess',300);
-    T_inner = fcleanup(abs(StreamData.Fz_inner{i}),'smoothdata','loess',300);
+%     T_outer = fcleanup(abs(StreamData.Fz_outer{i}),'smoothdata','loess',300);
+%     T_inner = fcleanup(abs(StreamData.Fz_inner{i}),'smoothdata','loess',300);
+    T_outer = savitzkyGolayFilt(abs(StreamData.Fz_outer{i}), 2, 0, 401);
+    T_inner = savitzkyGolayFilt(abs(StreamData.Fz_inner{i}), 2, 0, 401);
     
     T_outer_trans(:,i)   = T_outer(idx_trig);
     T_inner_trans(:,i)   = T_inner(idx_trig);

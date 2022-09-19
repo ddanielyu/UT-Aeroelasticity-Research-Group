@@ -104,7 +104,7 @@ if exist('phaseSync_test','var')
 end
 
 %% Plotting
-close all; clc;
+% close all; clc;
 
 if exist('steady_test','var') && length(steady_test) ~= 1; [f1,f2,f3,f4] = plotSteady(Averages,collective); end
 if exist('phaseSync_test','var'); [f5,f6,f7,f8,f9] = plotPhaseSync_dual(PhaseSync,loads); end

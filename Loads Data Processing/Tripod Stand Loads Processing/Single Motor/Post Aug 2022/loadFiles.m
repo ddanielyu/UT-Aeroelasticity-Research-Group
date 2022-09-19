@@ -3,8 +3,6 @@ function [mdata,MeanData,steady_test,phaseSync_test] = loadFiles(source_dir,file
 %processing
 
 %% Inputs
-T_F = input('Temperature [F]: ');
-
 
 cd(files_dir);
 Files = dir('*.csv');
@@ -72,6 +70,7 @@ for im = 1:length(MeanData.names) % need to fix reading multiple mean files
         MeanData.data{im} = readtable(MeanData.names{im}, opts, 'ReadVariableNames', false);
     end
     
+    T_F = mdata.Temperature(1);
     T = (T_F - 32)*5/9 + 273.15; % [Kelvin]
     P = conditions(2)*101325/29.9212; % [Pa]
     R_air = 287.05; % INDIVIDUAL GAS CONSTANT

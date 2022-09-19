@@ -59,7 +59,7 @@ mdata(row2rm,:) = [];
 StreamData.names(row2rm,:) = [];
 
 % find nominal RPM : actual RPM within closest 5 RPM. 898 -> 900, 901 -> 900
-MeanData.RPMs = (round(mdata{:,'ServoRPM'}/5))*5;  
+MeanData.RPMs = (round(mdata{:,'FollowerRPM'}/5))*5;  
 
 
 %% LOAD AND PROCESS STREAMING FILES
