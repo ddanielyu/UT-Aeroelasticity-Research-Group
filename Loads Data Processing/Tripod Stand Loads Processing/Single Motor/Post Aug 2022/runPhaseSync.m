@@ -26,8 +26,8 @@ IQ_b = sqrt(2/3)*I150_b; %error propagation of CR_150A current sensors
 
 Az_b = 360/1024/2; %Encoder resolution 1024 bits / rev
 
-pre_trig = 0.25;
-post_trig = 1;
+pre_trig = 1;
+post_trig = 4;
 
 %% Find New Stream Data
 
@@ -35,8 +35,8 @@ for i = 1:length(phaseSync_test)
 
     Time     = 0:1/SR:(length(StreamData.encoder{i})-1)/SR;
     
-    %find angle trigger and calculate the rev-averaged angle error
-    est_avg_rpm = abs(nanmean(StreamData.rpm{i}));
+    %estimate the avg rpm based on first .5s of data
+    est_avg_rpm = abs(nanmean(StreamData.rpm{i}(1:SR/2)));
     
     if offset < 0
         start    = find((abs(StreamData.rpm{i}(2:end-1)) < est_avg_rpm - Trig),1);          %first index at which trig occurs

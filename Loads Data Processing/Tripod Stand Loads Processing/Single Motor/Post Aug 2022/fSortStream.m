@@ -198,9 +198,11 @@ for k = 1:length(StreamData.names)
                 SortedData.encoder{k}(n,1:b) = az;
                 azdt = circshift(az,-1);
                 instRPM = (azdt(1:end-1) - az(1:end-1)) *SR * pi /180; % instantaneous RPM, rad/s
-                instRPM = [instRPM instRPM(end)]; % add one element to get size 1xb
+                if isempty(instRPM) == 0; instRPM = [instRPM instRPM(end)]; end % add one element to get size 1xb
                 % interpolate to azimuth with dpsi = 1/Naz
                 
+%                 instRPM = fcleanup(instRPM, 'smoothdata', 'loess', 700);
+
                 SortedData.instRPM{k}(n,:) = interp1(az, instRPM, SortedData.azimuth{k}, 'pchip');
 
                 

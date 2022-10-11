@@ -1,4 +1,4 @@
-function [MeanData,StreamData] = loadStreamTripod(mdata,MeanData,source_dir,files_dir,collective,SF,GR)
+function [MeanData,StreamData] = loadStreamTripod(mdata,MeanData,source_dir,files_dir,collective,SF,GR,rpm_smoothing)
 %This function loads all streaming data files from loadFiles.m for the
 %2021-2022 Tripod Stand Testing
 % FEB 14, 2022 UPDATE: accommodates tripod 220212 Labview (streamed phase 3
@@ -55,14 +55,11 @@ MeanData.RPMs = (round(mdata{:,'RPM'}/5))*5;
 %% LOAD AND PROCESS STREAMING FILES
 rotor = 'Uber';
 
-switch (rotor)
-    case 'Uber'
-        MeanData.meancols = ones(length(mdata{:,'MeanCollective'}),1)*collective;
-        MeanData.diffcols = mdata{:,'DifferentialCollective'};
-        MeanData.zcs = mdata{:,'AxialSpacing'};
-        MeanData.phis = mdata{:,'IndexAngle'};
-        MeanData.rhos = mdata{:,'rho'};
-end
+% switch (rotor)
+%     case 'Uber'
+%         MeanData.meancols = ones(length(mdata{:,'MeanCollective'}),1)*collective;
+%         MeanData.rhos = mdata{:,'rho'};
+% end
 
 % cd('Streaming');   % enter streaming files directory 
 [nfiles, ~] = size(mdata);
@@ -117,9 +114,9 @@ for k = 1:nfiles
     StreamData.IQ{k} = parkClarke(StreamData.curr1{k},StreamData.curr2{k},StreamData.curr3{k}); 
     StreamData.bus_curr{k} = data{:,buscol};          %W
     StreamData.rpm{k} = (StreamData.unwrap{k}(2:end) - StreamData.unwrap{k}(1:end-1))*SF/360*60;
-    StreamData.rpm{k} = fcleanup(StreamData.rpm{k}, 'smoothdata', 'loess', 700);
-    StreamData.revolution{k} = data{:,revcol};       %X
-    StreamData.nrevs{k} = StreamData.revolution{k}(end);
+    StreamData.rpm{k} = fcleanup(StreamData.rpm{k}, 'smoothdata', 'loess', rpm_smoothing);
+%     StreamData.revolution{k} = data{:,revcol} - data{1,revcol};       %X
+%     StreamData.nrevs{k} = StreamData.revolution{k}(end);
     
     fprintf('%s\n', 'Ok');
     
@@ -129,7 +126,10 @@ for k = 1:nfiles
     revnum = 0;
     for i = 1:length(StreamData.encoder{k})-1
         StreamData.revolution{k}(i,1) = revnum;
-        if (StreamData.encoder{k}(i) > 359)&& (StreamData.encoder{k}(i+1) < 1)
+%         if (StreamData.encoder{k}(i) > 359)&& (StreamData.encoder{k}(i+1) < 1)
+%             revnum = revnum + 1; 
+%         end
+        if StreamData.encoder{k}(i) >= StreamData.encoder{k}(i+1)
             revnum = revnum + 1; 
         end
     end

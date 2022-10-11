@@ -1,5 +1,5 @@
-function [mdata,MeanData,steady_test,phaseSync_test] = loadFiles(source_dir,files_dir,conditions)
-%This scripts loads all the data files for Tripod Stand 2021-2022 data
+function [mdata,MeanData,steady_test,phaseSync_test,dynRPM_test] = loadFiles(source_dir,files_dir,conditions)
+%This scripts loads all the data files for Tripod Stand post-Aug2022 data
 %processing
 
 %% Inputs
@@ -31,7 +31,11 @@ steady_letters{jj} = split(steady_letters{jj},' ');
 
 phase_sync_letters{jj} = input('Phase sync letters : ','s');
 phase_sync_letters{jj} = split(phase_sync_letters{jj},' ');
-testletters{jj} = [steady_letters{jj};phase_sync_letters{jj}];
+
+dyn_rpm_letters{jj} = input('Dynamic RPM letters : ','s');
+dyn_rpm_letters{jj} = split(dyn_rpm_letters{jj},' ');
+
+testletters{jj} = [steady_letters{jj};phase_sync_letters{jj};dyn_rpm_letters{jj}];
 
 %% Processing
 cnt = 0;
@@ -70,12 +74,7 @@ for im = 1:length(MeanData.names) % need to fix reading multiple mean files
         MeanData.data{im} = readtable(MeanData.names{im}, opts, 'ReadVariableNames', false);
     end
     
-    T_F = mdata.Temperature(1);
-    T = (T_F - 32)*5/9 + 273.15; % [Kelvin]
-    P = conditions(2)*101325/29.9212; % [Pa]
-    R_air = 287.05; % INDIVIDUAL GAS CONSTANT
-    rho = P/R_air/T;
-    MeanData.data{im}.rho = rho*ones(height(MeanData.data{im}),1);
+    
     
     ExVar = startsWith(MeanData.data{im}.Properties.VariableNames,'ExtraVar');
     if sum(ExVar) > 0
@@ -83,11 +82,20 @@ for im = 1:length(MeanData.names) % need to fix reading multiple mean files
     end
         
     mdata = vertcat(mdata, MeanData.data{im});
+    
+    T_F = mdata.Temperature(1);
+    T = (T_F - 32)*5/9 + 273.15; % [Kelvin]
+    P = conditions(2)*101325/29.9212; % [Pa]
+    R_air = 287.05; % INDIVIDUAL GAS CONSTANT
+    rho = P/R_air/T;
+    MeanData.rhos = rho*ones(height(MeanData.data{im}),1);
+    MeanData.meancols = mdata{:,'MeanCollective'};
 end    
 
 %% Organize Steady and Phase Sync Tests
 steady_test = [];
 phaseSync_test = [];
+dynRPM_test = [];
 
 ij = 1; %steady test counter
 ji = 1; %phase sync test counter
@@ -109,6 +117,16 @@ for i = 1:length(mdata{:,'Path'})
         
         if contains(mdata{i,'Path'},strcat('test_',phase_sync_letters{jj}))
             phaseSync_test{ji} = mdata{i,'Path'};
+            ji = ji + 1;
+        end
+    end
+    
+    %dynamic rpm
+    for jj = 1:length(dyn_rpm_letters)
+        if string(dyn_rpm_letters) == ''; dynRPM_test = []; break; end
+        
+        if contains(mdata{i,'Path'},strcat('test_',dyn_rpm_letters{jj}))
+            dynRPM_test{ji} = mdata{i,'Path'};
             ji = ji + 1;
         end
     end

@@ -11,6 +11,8 @@ DETAILS: This update plots estimated motor torque with IQ
 
 %% Plot
 load('colors.mat')
+xlimits_time = [-.25 1];
+xlimits_rev = [-1 7];
 
 %Subplots
 f1 = figure('Name','Response_vs_time');
@@ -22,7 +24,7 @@ ylabel('Motor Angle, deg')
 legend('Experiment','','Prediction','location','southeast')
 grid on
 grid minor
-xlim([-.1 1])
+xlim(xlimits_time)
 
 subplot(3,1,2)
 hold on
@@ -32,7 +34,7 @@ ylabel('$\Omega_{motor}$, RPM')
 legend('Experiment','','Prediction','location','northeast')
 grid on
 grid minor
-xlim([-.1 1])
+xlim(xlimits_time)
 
 subplot(3,1,3)
 hold on
@@ -45,7 +47,7 @@ if loads == 'y'; legend('Experiment','Estimated','location','southeast'); else; 
 formatfig
 grid on
 grid minor
-xlim([-.1 1])
+xlim(xlimits_time)
 f1.Position = [326,236,674,561];
 
 %Subplots
@@ -58,7 +60,7 @@ legend('Experiment','','Prediction','location','southeast')
 hold off
 grid on
 grid minor
-xlim([-1 10])
+xlim(xlimits_rev)
 
 subplot(3,1,2)
 hold on
@@ -68,7 +70,7 @@ legend('Experiment','','Prediction','location','northeast')
 hold off
 grid on
 grid minor
-xlim([-1 10])
+xlim(xlimits_rev)
 
 subplot(3,1,3)
 hold on
@@ -82,7 +84,7 @@ if loads == 'y'; legend('Experiment','Estimated','location','southeast'); else; 
 formatfig
 grid on
 grid minor
-xlim([-1 10])
+xlim(xlimits_rev)
 f2.Position = [326,236,674,561];
 
 
