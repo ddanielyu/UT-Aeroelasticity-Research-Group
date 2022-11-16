@@ -1,0 +1,9 @@
+omega = 60*2*pi/60;
+beta = 45;
+theta0 = -5;
+r = 0.1:0.1:1;
+R = convlength(24.5/2,'in','m');
+v_tan = omega*r*R;
+v_in = 4-2.5;
+phi = atand(v_in./v_tan)
+theta = theta0-beta*tand(30)+phi
