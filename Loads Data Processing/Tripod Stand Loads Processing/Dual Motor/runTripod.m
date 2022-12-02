@@ -61,20 +61,21 @@ end
 close all; clc;
 
 if isempty(steady_test) == 0 && length(steady_test) ~= 1; [f1,f2,f3] = plotSteady(Averages,collective); end
-if isempty(phaseSync_test) == 0; [f4,f5,f6,f7,f8,f9] = plotPhaseSync(PhaseSync); end
+if isempty(phaseSync_test) == 0; [f4,f5,f6,f7,f8,f9,f10] = plotPhaseSync(PhaseSync); end
 
 
 %% Saving
 save_dir = uigetdir('H:\UT Austin\Research\Spring 2022 Dual Motor Data');
+
 %Data
 if exist('PhaseSync','var') && exist('Averages','var')
-%     save(fullfile(save_dir,'Data'),'PhaseSync','Averages');
+    save(fullfile(save_dir,'Data'),'PhaseSync','Averages');
 
 elseif exist('PhaseSync','var')
 %     save(fullfile(save_dir,'Data'),'PhaseSync');
 
 elseif exist('Averages','var')
-%     save(fullfile(save_dir,'Data'),'Averages');
+    save(fullfile(save_dir,'Data'),'Averages');
 end
 
 %Plots
@@ -90,6 +91,7 @@ if exist('f5','var')
     saveas(f7,fullfile(save_dir,f7.Name),'jpg')
     saveas(f8,fullfile(save_dir,f8.Name),'jpg')
     saveas(f9,fullfile(save_dir,f9.Name),'jpg')
+    saveas(f10,fullfile(save_dir,f10.Name),'jpg')
 end
 
 

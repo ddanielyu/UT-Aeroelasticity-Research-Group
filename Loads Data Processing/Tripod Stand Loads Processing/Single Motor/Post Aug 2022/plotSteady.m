@@ -1,4 +1,4 @@
-function [f1,f2,f3,f4] = plotSteady(Averages,collective)
+function [f1,f2,f3,f4,f5] = plotSteady(Averages,collective)
 %{
 EDITED ON; 02/17/2022
 EDITED BY: MATT ASPER
@@ -29,9 +29,9 @@ P_BEMT = Cp_BEMT*Averages.rho{1}*pi*Averages.R^2*(RPM*2*pi/60*Averages.R).^3;
 f1 = figure('Name','Steady Ct');
 hold on
 plot(BEMT.theta,BEMT.Ct,'k-','Linewidth',1.5)
-errorbar(ones(1,length(Averages.cts_avg))*collective,cell2mat(Averages.cts_avg)*Averages.sigma,cell2mat(Averages.cts_err)*Averages.sigma,'^','color',colors{1})
-xlabel('Collective, $\theta_o$ [deg]')
-ylabel('Thrust Coefficient, $C_T$ [-]')
+errorbar(ones(1,length(Averages.cts_avg))*collective,cell2mat(Averages.cts_avg)*Averages.sigma,cell2mat(Averages.cts_err)*Averages.sigma,'^','color',colors{1},'MarkerFaceColor',colors{1})
+xlabel('$\theta_o$, deg')
+ylabel('$C_T$')
 legend('Prediction','Experiment')
 formatfig
 hold off
@@ -39,10 +39,10 @@ hold off
 f2 = figure('Name','Steady Cp');
 hold on
 plot(BEMT.theta,BEMT.Cp,'k-','Linewidth',1.5)
-errorbar(ones(1,length(Averages.cps_avg))*collective,cell2mat(Averages.cps_avg)*Averages.sigma,cell2mat(Averages.cps_err)*Averages.sigma,'^','color',colors{1})
-errorbar(ones(1,length(Averages.cps_est_avg))*collective,cell2mat(Averages.cps_est_avg)*Averages.sigma,cell2mat(Averages.cps_est_err)*Averages.sigma,'^','color',colors{2})
-xlabel('Collective, $\theta_o$ [deg]')
-ylabel('Power Coefficient, $C_P$ [-]')
+errorbar(ones(1,length(Averages.cps_avg))*collective,cell2mat(Averages.cps_avg)*Averages.sigma,cell2mat(Averages.cps_err)*Averages.sigma,'^','color',colors{1},'MarkerFaceColor',colors{1})
+errorbar(ones(1,length(Averages.cps_est_avg))*collective,cell2mat(Averages.cps_est_avg)*Averages.sigma,cell2mat(Averages.cps_est_err)*Averages.sigma,'^','color',colors{2},'MarkerFaceColor',colors{2})
+xlabel('$\theta_o$, deg')
+ylabel('$C_P$')
 legend('Prediction','Experiment','IQ-Estimated')
 formatfig
 hold off
@@ -50,9 +50,9 @@ hold off
 f3 = figure('Name','Steady Thrust');
 hold on
 plot(RPM,T_BEMT,'k-','Linewidth',1.5)
-errorbar(cell2mat(Averages.OMEGA)*60/2/pi,cell2mat(Averages.T_avg),cell2mat(Averages.T_err),'^','color',colors{1})
-xlabel('Rotor Speed, $\Omega$ [RPM]')
-ylabel('Thrust [N]')
+errorbar(cell2mat(Averages.OMEGA)*60/2/pi,cell2mat(Averages.T_avg),cell2mat(Averages.T_err),'^','color',colors{1},'MarkerFaceColor',colors{1},'MarkerFaceColor',colors{1})
+xlabel('$\Omega$, RPM')
+ylabel('T, N')
 xlim([min(cell2mat(Averages.OMEGA)*60/2/pi) max(cell2mat(Averages.OMEGA)*60/2/pi)])
 legend('Prediction','Experiment')
 formatfig
@@ -61,12 +61,24 @@ hold off
 f4 = figure('Name','Steady Power');
 hold on
 plot(RPM,P_BEMT,'k-','Linewidth',1.5)
-errorbar(cell2mat(Averages.OMEGA)*60/2/pi,cell2mat(Averages.P_avg),cell2mat(Averages.P_err),'^','color',colors{1})
-errorbar(cell2mat(Averages.OMEGA)*60/2/pi,cell2mat(Averages.P_est_avg),cell2mat(Averages.P_est_err),'^','color',colors{2})
-xlabel('Rotor Speed, $\Omega$ [RPM]')
-ylabel('Power [W]')
+errorbar(cell2mat(Averages.OMEGA)*60/2/pi,cell2mat(Averages.P_avg),cell2mat(Averages.P_err),'^','color',colors{1},'MarkerFaceColor',colors{1})
+errorbar(cell2mat(Averages.OMEGA)*60/2/pi,cell2mat(Averages.P_est_avg),cell2mat(Averages.P_est_err),'^','color',colors{2},'MarkerFaceColor',colors{2})
+xlabel('$\Omega$, RPM')
+ylabel('P, W')
 xlim([min(cell2mat(Averages.OMEGA)*60/2/pi) max(cell2mat(Averages.OMEGA)*60/2/pi)])
 legend('Prediction','Experiment','IQ-Estimated')
+formatfig
+hold off
+
+f5 = figure('Name','Cp vs Ct');
+hold on
+plot(BEMT.Ct,BEMT.Cp,'k-','Linewidth',1.5)
+errorbar(cell2mat(Averages.cts_avg)*Averages.sigma,cell2mat(Averages.cps_avg)*Averages.sigma,...
+    cell2mat(Averages.cps_err)*Averages.sigma,cell2mat(Averages.cps_err)*Averages.sigma,...
+    cell2mat(Averages.cts_err)*Averages.sigma,cell2mat(Averages.cts_err)*Averages.sigma,'^','color',colors{1},'MarkerFaceColor',colors{1})
+xlabel('$C_T$')
+ylabel('$C_P$')
+legend('Prediction','Experiment')
 formatfig
 hold off
 

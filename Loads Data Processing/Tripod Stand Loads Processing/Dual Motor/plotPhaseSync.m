@@ -1,4 +1,4 @@
-function [f1,f2,f3,f4,f5,f6] = plotPhaseSync(PhaseSync)
+function [f1,f2,f3,f4,f5,f6,f7] = plotPhaseSync(PhaseSync)
 %{
 EDITED ON: 03/17/2022
 EDITED BY: MATT ASPER
@@ -10,6 +10,7 @@ DETAILS: This update plots estimated motor torque with IQ
 
 %% Plot
 load('colors.mat')
+xlimit = [-.1 1];
 
 %Subplots
 f1 = figure('Name','Response_vs_time');
@@ -19,18 +20,18 @@ plot_areaerrorbar(PhaseSync.time,PhaseSync.index_avg,PhaseSync.index_err,colors{
 hold off
 ylabel('$\phi$, deg')
 formatfig
-xlim([-.1 .5])
+xlim(xlimit)
 
 subplot(4,1,2)
 hold on
 plot_areaerrorbar(PhaseSync.time,PhaseSync.ref_ang1_avg,PhaseSync.ref_ang1_err,colors{1})
-plot_areaerrorbar(PhaseSync.time,PhaseSync.ref_ang2_avg-1,PhaseSync.ref_ang2_err,colors{2})
+plot_areaerrorbar(PhaseSync.time,PhaseSync.ref_ang2_avg,PhaseSync.ref_ang2_err,colors{2})
 hold off
 ylabel('$\Delta\psi$, deg')
 legend('Upper','Lower','location','northeast','orientation','horizontal')
 grid on
 grid minor
-xlim([-.1 .5])
+xlim(xlimit)
 
 subplot(4,1,3)
 hold on
@@ -41,7 +42,7 @@ ylabel('$\Omega$, RPM')
 % legend('Upper','Lower','location','northeast')
 grid on
 grid minor
-xlim([-.1 .5])
+xlim(xlimit)
 
 subplot(4,1,4)
 hold on
@@ -53,7 +54,7 @@ xlabel('Time, s')
 % legend('Upper','Lower','location','southeast')
 formatfig
 grid on
-xlim([-.1 .5])
+xlim(xlimit)
 f1.Position = [326,119,674,678];
 
 %Subplots
@@ -64,7 +65,7 @@ plot_areaerrorbar(PhaseSync.time,PhaseSync.index_avg,PhaseSync.index_err,colors{
 hold off
 ylabel('$\phi$, deg')
 formatfig
-xlim([-.1 .5])
+xlim(xlimit)
 
 subplot(4,1,2)
 hold on
@@ -75,7 +76,7 @@ legend('Upper','Lower','location','northeast','orientation','horizontal')
 hold off
 grid on
 grid minor
-xlim([-.1 .5])
+xlim(xlimit)
 
 subplot(4,1,3)
 hold on
@@ -86,7 +87,7 @@ ylabel('$\Omega$, RPM')
 hold off
 grid on
 grid minor
-xlim([-.1 .5])
+xlim(xlimit)
 
 subplot(4,1,4)
 hold on
@@ -98,7 +99,7 @@ xlabel('Time, s')
 % legend('Upper','Lower','location','southeast')
 formatfig
 grid on
-xlim([-.1 .5])
+xlim(xlimit)
 f2.Position = [326,119,674,678];
 
 %index vs time
@@ -112,7 +113,7 @@ legend('Upper','Lower','location','southeast')
 hold off
 grid on
 grid minor
-xlim([-.1 .5])
+xlim(xlimit)
 
 subplot(2,1,2)
 hold on
@@ -121,7 +122,7 @@ hold off
 xlabel('Time, s')
 ylabel('$\phi$, deg')
 formatfig
-xlim([-.1 .5])
+xlim(xlimit)
 
 %Thrust vs time
 f4 = figure('Name','Thrust versus Time');
@@ -133,7 +134,7 @@ xlabel('Time, s')
 ylabel('Thrust, N')
 legend('Upper','Lower')
 formatfig
-xlim([-.1 .5])
+xlim(xlimit)
 
 %Ct and Cp vs time
 f5 = figure('Name','CT and CP versus Time');
@@ -146,7 +147,7 @@ hold off
 ylabel('$C_T/\sigma$')
 legend('Upper','Lower','Total','location','northeast','orientation','horizontal')
 formatfig
-xlim([-.1 .5])
+xlim(xlimit)
 
 subplot(2,1,2)
 hold on
@@ -158,7 +159,7 @@ xlabel('Time, s')
 ylabel('$C_P/\sigma$')
 % legend('Upper','Lower','Total')
 formatfig
-xlim([-.1 .5])
+xlim(xlimit)
 
 %Subplots
 f6 = figure('Name','Torques_vs_time');
@@ -171,7 +172,7 @@ ylabel('Q, N$\cdot$m')
 legend('Upper','Lower','location','northeast','orientation','horizontal')
 grid on
 grid minor
-xlim([-.1 .5])
+xlim(xlimit)
 
 subplot(3,1,2)
 hold on
@@ -182,7 +183,7 @@ ylabel('$Q_{I\dot{\Omega}}$, N$\cdot$m')
 % legend('Upper','Lower','location','northeast')
 grid on
 grid minor
-xlim([-.1 .5])
+xlim(xlimit)
 
 subplot(3,1,3)
 hold on
@@ -194,8 +195,29 @@ xlabel('Time, s')
 % legend('Upper','Lower','location','southeast')
 formatfig
 grid on
-xlim([-.1 .5])
+xlim(xlimit)
 f6.Position = [326,119,674,678];
 
+
+f7 = figure('Name','Total Thrust and Power versus Time');
+subplot(2,1,1)
+hold on
+plot_areaerrorbar(PhaseSync.time,PhaseSync.T_inner_avg + PhaseSync.T_outer_avg,PhaseSync.T_inner_err + PhaseSync.T_outer_err,colors{1})
+hold off
+xlabel('Time, s')
+ylabel('Thrust, N')
+formatfig
+xlim(xlimit)
+
+subplot(2,1,2)
+hold on
+plot_areaerrorbar(PhaseSync.time,PhaseSync.P_inner_avg + PhaseSync.P_outer_avg,...
+    PhaseSync.P_inner_err + PhaseSync.P_outer_err,colors{1})
+hold off
+xlabel('Time, s')
+ylabel('Power, W')
+
+formatfig
+xlim(xlimit)
 end
 

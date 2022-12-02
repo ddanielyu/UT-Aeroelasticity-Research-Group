@@ -40,11 +40,11 @@ subplot(2,1,1)
 hold on
 plot(Speed_cmd.time,Speed_cmd.data*7200/GR,'k-','linewidth',1.5)
 plot(Rotor_RPM.time,Rotor_RPM.data,'k--','linewidth',1.5)
-plot_areaerrorbar(DynRPM.time-.1,DynRPM.Speed_avg/GR,DynRPM.Speed_err/GR,colors{1})
+plot_areaerrorbar(DynRPM.time,DynRPM.Speed_avg/GR,DynRPM.Speed_err/GR,colors{1})
 ylabel('$\Omega$, RPM')
 xlabel('Time, s')
 legend('Commanded','Prediction','Experiment','location','southeast')
-xlim([-1 4])
+xlim([-1 3])
 formatfig
 grid on
 grid minor
@@ -54,10 +54,10 @@ subplot(2,1,2)
 hold on
 plot(nRev.data/GR,Speed_cmd.data(1:length(nRev.data))*7200/GR,'k-','linewidth',1.5)
 plot(nRev.data/GR,Rotor_RPM.data(1:length(nRev.data)),'k--','linewidth',1.5)
-plot_areaerrorbar(DynRPM.rev/360/GR-1,DynRPM.Speed_avg/GR,DynRPM.Speed_err/GR,colors{1})
+plot_areaerrorbar(DynRPM.rev/360/GR,DynRPM.Speed_avg/GR,DynRPM.Speed_err/GR,colors{1})
 ylabel('$\Omega$, RPM')
 xlabel('Rotor Revolution')
-xlim([-15 57])
+xlim([-13 39])
 formatfig
 grid on
 grid minor
@@ -72,11 +72,11 @@ f2 = figure('Name','Rotor Torque');
 subplot(2,1,1)
 hold on
 plot(Q_total.time,Q_total.data,'k-','linewidth',1.5)
-% plot_areaerrorbar(DynRPM.time,DynRPM.Torque_avg*GR,DynRPM.Torque_err*GR,colors{1})
-plot_areaerrorbar(DynRPM.time,DynRPM.Q_est_avg*GR,DynRPM.Q_est_err*GR,colors{2})
+plot_areaerrorbar(DynRPM.time,DynRPM.Torque_avg*GR,DynRPM.Torque_err*GR,colors{1})
+% plot_areaerrorbar(DynRPM.time,DynRPM.Q_est_avg*GR,DynRPM.Q_est_err*GR,colors{2})
 ylabel('$Q_r$, N$\cdot$m')
 legend('Prediction','Experiment','location','southeast')
-xlim([-1 4])
+xlim([-1 3])
 formatfig
 grid on
 grid minor
@@ -87,10 +87,10 @@ hold off
 subplot(2,1,2)
 hold on
 plot(nRev.data/GR,Q_total.data(1:length(nRev.data)),'k-','linewidth',1.5)
-% plot_areaerrorbar(DynRPM.rev/360/GR,DynRPM.Torque_avg*GR,DynRPM.Torque_err*GR,colors{1})
-plot_areaerrorbar(DynRPM.rev/360/GR,DynRPM.Q_est_avg*GR,DynRPM.Q_est_err*GR,colors{2})
+plot_areaerrorbar(DynRPM.rev/360/GR,DynRPM.Torque_avg*GR,DynRPM.Torque_err*GR,colors{1})
+% plot_areaerrorbar(DynRPM.rev/360/GR,DynRPM.Q_est_avg*GR,DynRPM.Q_est_err*GR,colors{2})
 ylabel('$Q_r$, $N\cdot m$')
-xlim([-15 57])
+xlim([-13 39])
 formatfig
 grid on
 grid minor
@@ -100,7 +100,52 @@ hold off
 f2.Position = [326,236,674,561];
 
 
+%Performance (Speed, Thrust, Torque)
+f3 = figure('Name','Performance Responses');
+%versus time
+%Speed
+subplot(3,1,1)
+hold on
+plot(Speed_cmd.time,Speed_cmd.data*7200/GR,'k-','linewidth',1.5)
+plot(Rotor_RPM.time,Rotor_RPM.data,'k--','linewidth',1.5)
+plot_areaerrorbar(DynRPM.time,DynRPM.Speed_avg/GR,DynRPM.Speed_err/GR,colors{1})
+ylabel('$\Omega$, RPM')
+legend('Commanded','Prediction','Experiment','location','southeast')
+xlim([-1 3])
+formatfig
+grid on
+grid minor
+
+%Torque
+subplot(3,1,2)
+hold on
+plot(Q_total.time,Q_total.data,'k-','linewidth',1.5)
+plot_areaerrorbar(DynRPM.time,DynRPM.Torque_avg*GR,DynRPM.Torque_err*GR,colors{1})
+% plot_areaerrorbar(DynRPM.time,DynRPM.Q_est_avg*GR,DynRPM.Q_est_err*GR,colors{2})
+ylabel('$Q_r$, N$\cdot$m')
+xlim([-1 3])
+formatfig
+grid on
+grid minor
+hold off
+
+%Thrust
+subplot(3,1,3)
+hold on
+plot(Thrust.time,Thrust.data,'k-','linewidth',1.5)
+plot_areaerrorbar(DynRPM.time,DynRPM.T_avg,DynRPM.T_err,colors{1})
+ylabel('T, N')
+xlim([-1 3])
+formatfig
+grid on
+grid minor
+xlabel('Time, s')
+hold off
+
+f3.Position = [326,143,674,654];
+
 %% Saving
 save_dir = uigetdir();
 saveas(f1,fullfile(save_dir,f1.Name),'jpeg');
 saveas(f2,fullfile(save_dir,f2.Name),'jpeg');
+saveas(f3,fullfile(save_dir,f3.Name),'jpeg');
